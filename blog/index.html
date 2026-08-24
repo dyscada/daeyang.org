@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Blog — DAEYANG</title>
+<style>
+  :root{--ink:#0f0f0f;--muted:#6b6b6b;--line:#e8e8e8;--bg:#fafaf9}
+  *{box-sizing:border-box} body{margin:0;background:#fff;color:var(--ink);font-family: -apple-system, BlinkMacSystemFont, Inter, Helvetica, Arial, sans-serif}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
+  header{height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+  .logo{font-weight:600;font-size:15px;text-decoration:none;color:var(--ink)}
+  nav a{margin-left:24px;font-size:13px;color:var(--muted);text-decoration:none}
+  .top{padding:56px 0 24px;border-bottom:1px solid var(--line)}
+  .top h1{font-size:36px;letter-spacing:-.03em;margin:0;font-weight:600}
+  .top p{color:var(--muted);margin:12px 0 0;font-size:15px}
+  .list{padding:8px 0 80px}
+  .post{display:flex;justify-content:space-between;gap:24px;padding:28px 0;border-bottom:1px solid var(--line);text-decoration:none;color:inherit}
+  .post:hover h2{text-decoration:underline;text-underline-offset:4px}
+  .post h2{margin:0 0 8px;font-size:20px;font-weight:500;letter-spacing:-.02em;line-height:1.3}
+  .post p{margin:0;color:var(--muted);font-size:14px;line-height:1.6;max-width:560px}
+  .meta{font-size:12px;color:#999;white-space:nowrap;padding-top:4px}
+  .tag{display:inline-block;font-size:10px;letter-spacing:.08em;border:1px solid var(--line);border-radius:999px;padding:3px 8px;color:#888;margin-top:12px}
+  @media(max-width:720px){.post{flex-direction:column}.meta{order:-1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><a class="logo" href="/">DAEYANG.ORG</a><nav><a href="/">Home</a><a href="/blog/">Blog</a></nav></header>
+  <div class="top"><h1>Blog / Insights</h1><p>현장에서 배운 것들을 짧게 기록합니다. SCADA, 빌딩 운영, 시스템 유지보수.</p></div>
+  <div class="list">
+    <a class="post" href="/blog/scada-20years/"><div><h2>City Gas SCADA 운영 20년, 무엇을 배웠나</h2><p>도시가스 SCADA는 화려하지 않지만 멈추면 안 됩니다. 20년 운영하면서 생긴 장애 3가지와 예방 방법을 정리했습니다.</p><span class="tag">SCADA</span> <span class="tag">운영</span></div><div class="meta">2024.11.12 · 4 min</div></a>
+    <a class="post" href="/blog/building-checklist/"><div><h2>소규모 빌딩 장기 유지보수 체크리스트</h2><p>1995년부터 빌딩을 운영하면서 매년 반복하는 점검 항목 12가지. 누수, 전기, 소방을 중심으로.</p><span class="tag">Building</span></div><div class="meta">2024.09.03 · 3 min</div></a>
+    <a class="post" href="/blog/ctc-wired/"><div><h2>CTC 시스템, 왜 아직도 유선인가</h2><p>무선이 편해 보이지만 철도 관제에서는 유선이 아직 표준인 이유. 신뢰성과 지연 시간 이야기.</p><span class="tag">CTC</span> <span class="tag">Railroad</span></div><div class="meta">2024.06.21 · 5 min</div></a>
+  </div>
+</div>
+</body>
+</html>
