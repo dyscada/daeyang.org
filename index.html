@@ -9,7 +9,7 @@
   *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family: -apple-system, BlinkMacSystemFont, Inter, Helvetica, Arial, sans-serif; -webkit-font-smoothing:antialiased}
   .wrap{max-width:960px;margin:0 auto;padding:0 24px}
   header{height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
-  .logo{font-weight:600;letter-spacing:-.02em;font-size:15px}
+  .logo{font-weight:600;letter-spacing:-.02em;font-size:15px;text-decoration:none;color:var(--ink)}
   nav a{margin-left:24px;font-size:13px;color:var(--muted);text-decoration:none} nav a:hover{color:var(--ink)}
   .hero{padding:96px 0 72px}
   .hero h1{font-size:clamp(32px,5vw,52px);line-height:1.05;letter-spacing:-.04em;margin:0;font-weight:500}
@@ -29,41 +29,31 @@
 <body>
   <div class="wrap">
     <header>
-      <div class="logo">DAEYANG.ORG</div>
-      <nav><a href="#electronics">Electronics</a><a href="#building">Building</a><a href="#contact">Contact</a></nav>
+      <a class="logo" href="/">DAEYANG.ORG</a>
+      <nav><a href="/#electronics">Electronics</a><a href="/#building">Building</a><a href="/blog/">Blog</a><a href="/#contact">Contact</a></nav>
     </header>
-
     <section class="hero">
       <h1>Industrial systems<br>since 1988.</h1>
       <p>대양전자산업. 도시가스 SCADA, 철도 EIS·CTC 시스템 개발 및 운영. 서울 용산구 효창동 대양빌딩 기반.</p>
+      <p style="margin-top:28px"><a href="/blog/" style="font-size:14px;color:#111;text-decoration:underline;text-underline-offset:4px">Blog 보기 →</a></p>
     </section>
-
     <section class="grid" id="electronics">
       <div class="cell">
         <div class="k">Daeyang Electronics / 1988 —</div>
         <h3>SCADA / EIS / CTC</h3>
         <p>도시가스 공급망 감시제어 및 철도 정보·관제 시스템. 설계부터 운영까지 직접 수행.</p>
-        <ul>
-          <li>City Gas SCADA System</li>
-          <li>Railroad EIS (Information System)</li>
-          <li>Railroad CTC (Centralized Traffic Control)</li>
-        </ul>
+        <ul><li>City Gas SCADA System</li><li>Railroad EIS</li><li>Railroad CTC</li></ul>
       </div>
       <div class="cell" id="building">
         <div class="k">Daeyang Building / 1995 —</div>
         <h3>효창동 대양빌딩</h3>
         <p>1995년 5-245 준공, 2004년 현 건물 준공. 장기 운영 및 관리.</p>
-        <ul>
-          <li>Location: Yongsan-gu, Seoul</li>
-          <li>Use: Office / Commercial</li>
-          <li>Built: 1995 / 2004</li>
-        </ul>
+        <ul><li>Location: Yongsan-gu, Seoul</li><li>Use: Office / Commercial</li><li>Built: 1995 / 2004</li></ul>
       </div>
     </section>
-
     <section class="foot" id="contact">
       <small>© DAEYANG.ORG<br>Seoul, Korea</small>
-      <small style="text-align:right">Contact<br>hello@daeyang.org<br>수정해서 사용하세요</small>
+      <small style="text-align:right">Contact<br>hello@daeyang.org</small>
     </section>
   </div>
 </body>
