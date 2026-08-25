@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>전체 블로그 EDIT 버튼 일괄 패치</title>
+<style>
+body{margin:0;font-family:Inter,sans-serif;background:#fafafa;padding:24px;max-width:720px;margin:auto}
+h1{font-size:22px} .card{border:1px solid #e5e5e5;background:#fff;border-radius:12px;padding:16px;margin:12px 0}
+input{width:100%;border:1px solid #e5e5e5;border-radius:8px;padding:10px;font-size:13px;margin:6px 0}
+.btn{padding:10px 16px;border-radius:10px;border:1px solid #111;background:#111;color:#fff;cursor:pointer;font-weight:600;width:100%;margin-top:8px}
+.log{font-family:monospace;font-size:11px;white-space:pre-wrap;background:#111;color:#0f0;padding:12px;border-radius:8px;margin-top:12px;max-height:300px;overflow:auto}
+</style>
+</head>
+<body>
+<h1>🔧 전체 블로그 EDIT 버튼 일괄 패치</h1>
+<p style="font-size:13px;color:#666;line-height:1.6">당구, 수영 외에 버튼이 없는 모든 블로그에 자동으로 버튼을 추가합니다. GitHub Token 필요 (에디터와 동일)</p>
+
+<div class="card">
+<label style="font-size:11px;color:#888">Owner</label><input id="ghOwner" placeholder="dyscada">
+<label style="font-size:11px;color:#888">Repo</label><input id="ghRepo" placeholder="dyscada.github.io">
+<label style="font-size:11px;color:#888">Branch</label><input id="ghBranch" value="main">
+<label style="font-size:11px;color:#888">Token</label><input id="ghToken" type="password" placeholder="ghp_...">
+<button class="btn" id="scan">1️⃣ 모든 블로그 스캔</button>
+<button class="btn" id="patch" style="background:#2563eb;border-color:#2563eb;display:none">2️⃣ 버튼 없는 글에 모두 추가하기</button>
+<div id="list"></div>
+<div id="log" class="log" style="display:none"></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+['ghOwner','ghRepo','ghBranch','ghToken'].forEach(k=>{ const v=localStorage.getItem('writer92_'+k); if(v) $(k).value=v; });
+let blogs=[]; let missing=[];
+
+function log(t){ const l=$('log'); l.style.display='block'; l.textContent+=t+'\n'; l.scrollTop=l.scrollHeight; }
+
+$('scan').onclick=async()=>{
+  const owner=$('ghOwner').value.trim(), repo=$('ghRepo').value.trim(), branch=$('ghBranch').value.trim()||'main';
+  const token=$('ghToken').value.trim();
+  if(!owner||!repo){ alert('Owner/Repo 입력'); return; }
+  $('list').innerHTML='⏳ 스캔 중...'; $('log').style.display='block'; $('log').textContent='';
+  try{
+    const res=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/blog?ref=${branch}`, {headers: token?{Authorization:`token ${token}`}:{}});
+    const items=await res.json();
+    blogs=items.filter(i=>i.type==='dir').map(i=>i.name);
+    log(`Found ${blogs.length} blogs: ${blogs.join(', ')}`);
+    missing=[];
+    $('list').innerHTML='';
+    for(const name of blogs){
+      try{
+        const fileRes=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/blog/${name}/index.html?ref=${branch}`, {headers: token?{Authorization:`token ${token}`}:{}});
+        if(!fileRes.ok){ log(`❌ ${name}: 파일 없음`); missing.push(name); continue; }
+        const fileJson=await fileRes.json();
+        const content=decodeURIComponent(escape(atob(fileJson.content)));
+        const hasBtn = content.includes('edit-fab') || content.includes('EDIT') || content.toLowerCase().includes('에디터로 이동');
+        if(hasBtn){
+          $('list').innerHTML+=`<div style="padding:8px;border-bottom:1px solid #eee;font-size:13px">✅ ${name} - 버튼 있음</div>`;
+        } else {
+          $('list').innerHTML+=`<div style="padding:8px;border-bottom:1px solid #eee;font-size:13px;background:#fffbeb">⚠️ ${name} - 버튼 없음 (패치 필요)</div>`;
+          missing.push(name);
+        }
+      }catch(e){ log(`에러 ${name}: ${e.message}`); }
+    }
+    if(missing.length>0){
+      $('patch').style.display='block';
+      $('patch').textContent=`2️⃣ ${missing.length}개 블로그에 버튼 일괄 추가 (${missing.join(', ')})`;
+      log(`패치 필요: ${missing.join(', ')}`);
+    } else {
+      $('list').innerHTML+='<div style="padding:12px;color:#16a34a;font-weight:600">모든 블로그에 버튼이 이미 있습니다!</div>';
+    }
+  }catch(e){ log('스캔 실패: '+e.message); }
+};
+
+$('patch').onclick=async()=>{
+  const owner=$('ghOwner').value.trim(), repo=$('ghRepo').value.trim(), branch=$('ghBranch').value.trim()||'main', token=$('ghToken').value.trim();
+  if(!token){ alert('Token 필요 - 그래야 커밋 가능'); return; }
+  if(!confirm(missing.length+'개 블로그에 EDIT 버튼을 추가할까요?')) return;
+  log('패치 시작...');
+  for(const name of missing){
+    try{
+      const apiBase=`https://api.github.com/repos/${owner}/${repo}/contents/blog/${name}/index.html`;
+      const getRes=await fetch(`${apiBase}?ref=${branch}`, {headers:{Authorization:`token ${token}`}});
+      if(!getRes.ok) { log(`❌ ${name} get 실패`); continue; }
+      const j=await getRes.json();
+      let content=decodeURIComponent(escape(atob(j.content)));
+      // 버튼이 없으면 body 끝에 주입
+      if(content.includes('edit-fab')){ log(`- ${name} 스킵 (이미 있음)`); continue; }
+      const inject=`
+<!-- AUTO EDIT BUTTON INJECTED BY PATCH TOOL -->
+<style>.edit-fab{position:fixed;bottom:20px;right:20px;background:#111;color:#fff !important;padding:14px 20px;border-radius:999px;font-size:14px;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.25);text-decoration:none !important;display:flex;align-items:center;gap:6px}.edit-top{background:#111;color:#fff !important;padding:8px 14px;border-radius:999px;font-size:12px;text-decoration:none !important}</style>
+<script>
+(function(){const slug=location.pathname.split('/').filter(Boolean).pop(); if(!document.querySelector('.edit-fab')){ const a=document.createElement('a'); a.className='edit-fab'; a.href='/write/?edit='+slug; a.textContent='✏️ 에디터로 이동'; document.body.appendChild(a); }})();
+<\/script>
+`;
+      // </body> 앞에 삽입
+      if(content.includes('</body>')) content=content.replace('</body>', inject+'</body>');
+      else content+=inject;
+      const newB64=btoa(unescape(encodeURIComponent(content)));
+      const putRes=await fetch(apiBase,{method:'PUT', headers:{Authorization:`token ${token}`,'Content-Type':'application/json'}, body:JSON.stringify({message:`Add EDIT button to ${name} via patch tool`, content:newB64, sha:j.sha, branch})});
+      const putJson=await putRes.json();
+      if(putRes.ok){ log(`✅ ${name} 패치 성공`); }
+      else { log(`❌ ${name} 실패: ${putJson.message}`); }
+    }catch(e){ log(`❌ ${name} 예외: ${e.message}`); }
+  }
+  log('완료! 1~2분 후 사이트에 반영됩니다.');
+  alert('완료! 1~2분 뒤에 모든 블로그에 버튼이 보일 거예요');
+};
+</script>
+</body>
+</html>
