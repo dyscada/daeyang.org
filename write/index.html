@@ -15,7 +15,7 @@ header{height:64px;background:#fff;border-bottom:1px solid var(--line);display:f
 label{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:20px 0 6px}
 input,textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;outline:none}
 input:focus,textarea:focus{border-color:#111}
-textarea{height:420px;resize:vertical;line-height:1.7}
+textarea{height:520px;resize:vertical;line-height:1.7}
 .row{display:flex;gap:8px}
 .btn{padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:13px}
 .btn.primary{background:#111;color:#fff;border-color:#111}
@@ -28,158 +28,116 @@ textarea{height:420px;resize:vertical;line-height:1.7}
 .preview-box .content p{margin:16px 0}
 .preview-box .content h2{font-size:18px;margin:32px 0 8px}
 .video iframe{width:100%;height:360px;border-radius:12px;border:1px solid #eee}
-.top-actions{display:flex;gap:8px;align-items:center;margin-bottom:12px}
 </style>
 </head>
 <body>
-<header><a class="logo" href="/">DAEYANG.ORG — WRITE</a><div class="top-actions"><a href="/blog/" style="font-size:12px;color:#888;text-decoration:none">← Blog로</a></div></header>
+<header><a class="logo" href="/">DAEYANG.ORG — WRITE v3</a><a href="/blog/" style="font-size:12px;color:#888;text-decoration:none">← Blog</a></header>
 <div class="wrap">
 <div class="edit">
   <div class="row">
-    <div style="flex:1"><label>글 주소 (slug)</label><div class="row"><input id="slug" placeholder="billiards" value="billiards"><button class="btn" id="loadBtn">불러오기</button></div><div class="help">예: billiards → /blog/billiards/ <br>주소창에 ?edit=billiards 로 들어오면 자동 로드</div></div>
+    <div style="flex:1"><label>글 주소 (slug)</label><div class="row"><input id="slug" placeholder="billiards" value="billiards"><button class="btn" id="loadBtn">불러오기</button></div><div class="help">?edit=billiards 로 들어오면 자동 로드. GitHub에 올라간 글만 불러올 수 있음</div></div>
   </div>
   <label>제목</label><input id="title" placeholder="당구">
   <label>태그</label><input id="tag" placeholder="Billiards">
   <label>날짜</label><input id="date" type="date">
-  <label>내용</label><textarea id="body" placeholder="여기에 글을 써요.
-
-## 소제목
-빈 줄은 문단
-
-- 목록
-https://www.youtube.com/watch?v=SROZvzcYSgg
-유튜브 링크는 자동으로 영상으로 바뀜"></textarea>
-  <div class="help">• 유튜브 링크 붙여넣으면 자동으로 영상으로 변환<br>• ## 소제목, - 목록 지원</div>
-  <div style="margin-top:24px;display:flex;gap:8px"><button class="btn primary" id="dlBtn">HTML 파일 다운로드</button><button class="btn" id="copyBtn">미리보기 복사</button></div>
+  <label>내용 (마크다운)</label><textarea id="body"></textarea>
+  <div style="margin-top:16px;display:flex;gap:8px"><button class="btn primary" id="dlBtn">HTML 다운로드</button><button class="btn" id="rawBtn">원본 HTML 보기</button></div>
+  <pre id="log" style="margin-top:16px;background:#f5f5f5;padding:12px;border-radius:8px;font-size:11px;white-space:pre-wrap;display:none"></pre>
 </div>
 <div class="preview">
-  <div class="meta" id="p-meta">미리보기</div>
   <div class="preview-box" id="preview"></div>
 </div>
 </div>
 <script>
-const $ = id => document.getElementById(id);
+const $=id=>document.getElementById(id);
 const slugInput=$('slug'), titleInput=$('title'), tagInput=$('tag'), dateInput=$('date'), bodyInput=$('body');
 dateInput.valueAsDate=new Date();
-
-function ytId(url){
-  try{const u=new URL(url); if(u.hostname.includes('youtu.be')) return u.pathname.slice(1); if(u.searchParams.get('v')) return u.searchParams.get('v'); const m=url.match(/embed\/([^?\/]+)/); if(m) return m[1];}catch(e){} return null;
-}
+function ytId(url){try{const u=new URL(url); if(u.hostname.includes('youtu.be')) return u.pathname.slice(1).split('?')[0]; if(u.searchParams.get('v')) return u.searchParams.get('v'); const m=url.match(/embed\/([^?\/&]+)/); if(m) return m[1];}catch(e){} return null;}
 function mdToHtml(md){
   let lines=md.split('\n'); let html=''; let inList=false;
   for(let line of lines){
-    line=line.trimEnd();
-    if(!line){ if(inList){html+='</ul>'; inList=false;} html+='<p style="height:8px"></p>'; continue; }
-    if(line.startsWith('## ')){ if(inList){html+='</ul>'; inList=false;} html+=`<h2>${line.slice(3)}</h2>`; continue; }
-    if(line.startsWith('- ')){ if(!inList){html+='<ul style="padding-left:20px;margin:8px 0">'; inList=true;} html+=`<li>${line.slice(2)}</li>`; continue; }
-    // youtube link alone
-    const yid = ytId(line.trim());
-    if(yid && line.trim().startsWith('http')){
-      if(inList){html+='</ul>'; inList=false;}
-      html+=`<div class="video" style="margin:24px 0"><iframe src="https://www.youtube.com/embed/${yid}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
-      continue;
-    }
+    let raw=line; line=line.trimEnd();
+    if(!line.trim()){ if(inList){html+='</ul>'; inList=false;} html+='<p></p>'; continue; }
+    if(line.trim().startsWith('## ')){ if(inList){html+='</ul>'; inList=false;} html+=`<h2>${line.trim().slice(3)}</h2>`; continue; }
+    if(line.trim().startsWith('- ')){ if(!inList){html+='<ul style="padding-left:20px">'; inList=true;} html+=`<li>${line.trim().slice(2)}</li>`; continue; }
+    const yid=ytId(line.trim());
+    if(yid && line.trim().startsWith('http')){ if(inList){html+='</ul>'; inList=false;} html+=`<div class="video"><iframe src="https://www.youtube.com/embed/${yid}" frameborder="0" allowfullscreen></iframe></div>`; continue; }
     if(inList){html+='</ul>'; inList=false;}
-    // inline link
-    let t=line.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:#2563eb;word-break:break-all">$1</a>');
+    let t=raw.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" style="color:#2563eb">$1</a>');
     html+=`<p>${t}</p>`;
   }
-  if(inList) html+='</ul>';
-  return html;
+  if(inList) html+='</ul>'; return html;
 }
 function render(){
-  const title=titleInput.value||'제목 없음';
-  const tag=tagInput.value||'NOTE';
-  const date=dateInput.value||new Date().toISOString().slice(0,10);
-  const md=bodyInput.value||'내용을 입력하세요';
-  const contentHtml=mdToHtml(md);
-  $('p-meta').textContent=`${tag} / ${date}`;
-  $('preview').innerHTML=`<h1>${title}</h1><div class="meta">${tag} / ${date} — DAEYANG</div><div class="content">${contentHtml}</div>`;
+  const title=titleInput.value||'제목'; const tag=tagInput.value||'NOTE'; const date=dateInput.value||new Date().toISOString().slice(0,10);
+  const md=bodyInput.value||'내용 없음'; const contentHtml=mdToHtml(md);
+  $('preview').innerHTML=`<h1>${title}</h1><div style="font-size:11px;color:#999;letter-spacing:.12em;text-transform:uppercase;margin-bottom:24px">${tag} / ${date}</div><div class="content">${contentHtml}</div>`;
 }
-function buildFullHtml(){
-  const title=titleInput.value||'당구';
-  const tag=tagInput.value||'Billiards';
-  const date=dateInput.value||new Date().toISOString().slice(0,10);
-  const slug=slugInput.value||'billiards';
-  const contentHtml=mdToHtml(bodyInput.value);
-  return `<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>${title} — DAEYANG.ORG</title>
-<meta name="description" content="${title}" />
-<style>
-:root{--ink:#0f0f0f;--muted:#6b6b6b;--line:#e8e8e8}
-*{box-sizing:border-box} body{margin:0;background:#fff;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,Inter,Helvetica,Arial,sans-serif;line-height:1.7}
-.wrap{max-width:720px;margin:0 auto;padding:0 24px}
-header{height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);max-width:960px;margin:0 auto;padding:0 24px}
-.logo{font-weight:600;font-size:14px;text-decoration:none;color:var(--ink)} nav a{margin-left:20px;font-size:13px;color:var(--muted);text-decoration:none}
-.meta{margin:72px 0 24px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#999}
-h1{font-size:36px;line-height:1.15;letter-spacing:-.03em;font-weight:600;margin:0 0 24px}
-.content{font-size:16px;color:#222} .content p{margin:20px 0} .content h2{font-size:20px;margin:40px 0 12px} .content ul{margin:12px 0;padding-left:20px}
-.content hr{border:none;border-top:1px solid var(--line);margin:40px 0}
-.video{margin:32px 0} .video iframe{width:100%;height:405px;border-radius:12px;border:1px solid var(--line)}
-footer{margin:80px auto 40px;max-width:960px;padding:24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-size:12px;color:#999}
-</style>
-</head>
-<body>
-<header><a class="logo" href="/">DAEYANG.ORG</a><nav><a href="/">Home</a><a href="/blog/">Blog</a></nav></header>
-<div class="wrap">
-  <div class="meta">${tag} / ${date} — DAEYANG</div>
-  <h1>${title}</h1>
-  <div class="content">
-${contentHtml}
-  </div>
-</div>
-<footer><span>© DAEYANG.ORG</span><span>Seoul, Korea</span></footer>
-</body>
-</html>`;
+function htmlToMarkdown(contentEl){
+  let md='';
+  const walk=(node)=>{
+    if(node.nodeType===3){ const t=node.textContent.trim(); if(t) md+=t+' '; return; }
+    if(node.nodeType!==1) return;
+    const tag=node.tagName;
+    if(tag==='H1') return; // title is separate
+    if(tag==='H2'){ md+=`\n## ${node.textContent.trim()}\n\n`; return; }
+    if(tag==='H3'){ md+=`\n### ${node.textContent.trim()}\n\n`; return; }
+    if(tag==='BR'){ md+='\n'; return; }
+    if(tag==='P'){ 
+      // check for iframe inside p? no
+      let txt=''; for(let c of node.childNodes){ if(c.nodeType===3) txt+=c.textContent; else if(c.tagName==='A') txt+=c.href||c.textContent; else if(c.tagName==='BR') txt+='\n'; else txt+=c.textContent; }
+      txt=txt.trim(); if(txt) md+=`${txt}\n\n`; return;
+    }
+    if(tag==='DIV' && node.classList.contains('video')){
+      const iframe=node.querySelector('iframe'); if(iframe){ const src=iframe.src; const m=src.match(/embed\/([^?&#]+)/); if(m) md+=`https://www.youtube.com/watch?v=${m[1]}\n\n`; else md+=`${src}\n\n`; } return;
+    }
+    if(tag==='IFRAME'){ const src=node.src; const m=src.match(/embed\/([^?&#]+)/); if(m) md+=`https://www.youtube.com/watch?v=${m[1]}\n\n`; return; }
+    if(tag==='UL'){ for(let li of node.querySelectorAll(':scope > li')) md+=`- ${li.textContent.trim()}\n`; md+='\n'; return; }
+    if(tag==='LI'){ md+=`- ${node.textContent.trim()}\n`; return; }
+    // generic container: recurse
+    for(let child of node.childNodes) walk(child);
+  };
+  for(let child of contentEl.childNodes) walk(child);
+  // cleanup multiple blank lines
+  md=md.replace(/\n{3,}/g,'\n\n').trim();
+  return md;
 }
 async function loadExisting(){
   const slug=(slugInput.value||'').trim(); if(!slug){alert('slug 입력'); return;}
-  const btn=$('loadBtn'); btn.textContent='불러오는 중...'; btn.disabled=true;
+  const btn=$('loadBtn'); btn.textContent='불러오는 중...'; btn.disabled=true; $('log').style.display='block'; $('log').textContent=`Fetching /blog/${slug}/index.html ...`;
   try{
-    const url=`/blog/${slug}/index.html`;
+    const url=`/blog/${slug}/index.html?v=${Date.now()}`;
     const res=await fetch(url,{cache:'no-store'});
-    if(!res.ok) throw new Error(`${res.status} - 아직 글이 없거나 주소가 다름`);
+    if(!res.ok) throw new Error(`HTTP ${res.status} - GitHub에 /blog/${slug}/index.html 파일이 없거나 아직 배포 안됨`);
     const html=await res.text();
+    $('log').textContent+=`\nFetched ${html.length} bytes`;
     const doc=new DOMParser().parseFromString(html,'text/html');
     const h1=doc.querySelector('h1'); const title=h1?h1.textContent.trim():slug;
-    const meta=doc.querySelector('.meta'); let tag='', date='';
-    if(meta){const t=meta.textContent; const m=t.match(/([A-Za-z ]+)\s*\/\s*(\d{4}-\d{2}-\d{2})/); if(m){tag=m[1].trim(); date=m[2];}}
-    const contentEl=doc.querySelector('.content');
-    let md='';
-    if(contentEl){
-      // convert html to simple markdown
-      for(let node of contentEl.children){
-        if(node.tagName==='H2'){ md+=`## ${node.textContent.trim()}\n\n`; }
-        else if(node.tagName==='P'){ 
-          const a=node.querySelector('a'); 
-          const txt=node.textContent.trim(); 
-          if(txt) md+=`${txt}\n\n`; 
-        }
-        else if(node.tagName==='UL'){ for(let li of node.querySelectorAll('li')) md+=`- ${li.textContent.trim()}\n`; md+='\n'; }
-        else if(node.tagName==='DIV' && node.classList.contains('video')){
-          const iframe=node.querySelector('iframe'); if(iframe){ const src=iframe.getAttribute('src')||''; const m=src.match(/embed\/([^?\/]+)/); if(m) md+=`https://www.youtube.com/watch?v=${m[1]}\n\n`; }
-        }
-      }
-      // fallback: if md empty, use innerText
-      if(!md.trim()) md=contentEl.innerText;
-    }
-    titleInput.value=title; tagInput.value=tag||'Billiards'; if(date) dateInput.value=date; bodyInput.value=md.trim();
+    // try multiple selectors for content
+    let contentEl=doc.querySelector('.content') || doc.querySelector('article') || doc.querySelector('.post-content') || doc.querySelector('main') || doc.querySelector('.wrap');
+    if(!contentEl) throw new Error('content 영역(.content)을 못 찾음. HTML 구조 확인 필요');
+    $('log').textContent+=`\nFound content element: ${contentEl.className || contentEl.tagName}, children=${contentEl.children.length}`;
+    // meta parse
+    let tag='', date='';
+    const meta=doc.querySelector('.meta'); if(meta){ const t=meta.textContent; const m=t.match(/([A-Za-z ]+)\s*\/\s*(\d{4}-\d{2}-\d{2})/); if(m){tag=m[1].trim(); date=m[2];} $('log').textContent+=`\nMeta: ${t}`; }
+    const md=htmlToMarkdown(contentEl);
+    $('log').textContent+=`\nConverted to MD:\n${md.slice(0,500)}...`;
+    titleInput.value=title; tagInput.value=tag||'Billiards'; if(date) dateInput.value=date; bodyInput.value=md;
     render();
-    alert(`불러오기 성공: ${url}`);
-  }catch(e){ alert('불러오기 실패: '+e.message+'\n\nGitHub에 이미 올라간 글이어야 해.'); }
+    $('log').textContent+=`\n\n✓ 성공!`;
+  }catch(e){ $('log').textContent+=`\n✗ 실패: ${e.message}`; alert('불러오기 실패: '+e.message); }
   finally{ btn.textContent='불러오기'; btn.disabled=false; }
 }
-$('slug').addEventListener('change',render); $('title').addEventListener('input',render); $('tag').addEventListener('input',render); $('date').addEventListener('change',render); $('body').addEventListener('input',render);
+function buildFullHtml(){
+  const title=titleInput.value||'당구'; const tag=tagInput.value||'Billiards'; const date=dateInput.value||new Date().toISOString().slice(0,10); const contentHtml=mdToHtml(bodyInput.value);
+  return `<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><title>${title} — DAEYANG.ORG</title><style>:root{--ink:#0f0f0f;--muted:#6b6b6b;--line:#e8e8e8}*{box-sizing:border-box} body{margin:0;background:#fff;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,Inter,Helvetica,Arial,sans-serif;line-height:1.7}.wrap{max-width:720px;margin:0 auto;padding:0 24px}header{height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);max-width:960px;margin:0 auto;padding:0 24px}.logo{font-weight:600;font-size:14px;text-decoration:none;color:var(--ink)} nav a{margin-left:20px;font-size:13px;color:var(--muted);text-decoration:none}.meta{margin:72px 0 24px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#999}h1{font-size:36px;line-height:1.15;letter-spacing:-.03em;font-weight:600;margin:0 0 24px}.content{font-size:16px;color:#222} .content p{margin:20px 0} .content h2{font-size:20px;margin:40px 0 12px} .content ul{margin:12px 0;padding-left:20px}.content hr{border:none;border-top:1px solid var(--line);margin:40px 0}.video{margin:32px 0} .video iframe{width:100%;height:405px;border-radius:12px;border:1px solid var(--line)}footer{margin:80px auto 40px;max-width:960px;padding:24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-size:12px;color:#999}</style></head><body><header><a class="logo" href="/">DAEYANG.ORG</a><nav><a href="/">Home</a><a href="/blog/">Blog</a></nav></header><div class="wrap"><div class="meta">${tag} / ${date} — DAEYANG</div><h1>${title}</h1><div class="content">\n${contentHtml}\n  </div></div><footer><span>© DAEYANG.ORG</span><span>Seoul, Korea</span></footer></body></html>`;
+}
+['input','change'].forEach(ev=>{ $('slug').addEventListener(ev,render); $('title').addEventListener(ev,render); $('tag').addEventListener(ev,render); $('date').addEventListener(ev,render); $('body').addEventListener(ev,render); });
 $('loadBtn').addEventListener('click',loadExisting);
-$('dlBtn').addEventListener('click',()=>{
-  const html=buildFullHtml(); const blob=new Blob([html],{type:'text/html'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='index.html'; a.click();
-});
-$('copyBtn').addEventListener('click',()=>{navigator.clipboard.writeText($('preview').innerHTML); alert('미리보기 HTML 복사됨');});
-// auto load from ?edit=
-const params=new URLSearchParams(location.search); const edit=params.get('edit'); if(edit){ slugInput.value=edit; setTimeout(loadExisting,300); }
+$('dlBtn').addEventListener('click',()=>{ const html=buildFullHtml(); const blob=new Blob([html],{type:'text/html'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='index.html'; a.click(); });
+$('rawBtn').addEventListener('click',()=>{ const log=$('log'); log.style.display='block'; log.textContent=buildFullHtml().slice(0,4000); });
+const params=new URLSearchParams(location.search); const edit=params.get('edit'); if(edit){ slugInput.value=edit; setTimeout(loadExisting,400); }
 render();
 </script>
 </body>
