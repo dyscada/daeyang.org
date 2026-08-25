@@ -5,34 +5,77 @@
 <title>Blog — DAEYANG.ORG</title>
 <style>
 body{margin:0;background:#fff;color:#18181b;font-family:Inter,system-ui,sans-serif}
-header{height:56px;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;padding:0 20px;justify-content:space-between;position:sticky;top:0;background:#fff}
+header{height:56px;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;padding:0 20px;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:10}
 .wrap{max-width:720px;margin:0 auto;padding:40px 20px}
-h1{font-size:36px;margin:0 0 24px}
-.grid{display:grid;gap:16px}
-.card{border:1px solid #e5e5e5;border-radius:16px;padding:20px;display:flex;justify-content:space-between;align-items:center;transition:.15s}
-.card:hover{border-color:#111;transform:translateY(-1px)}
-.card h3{margin:0 0 6px;font-size:18px}
-.card p{margin:0;color:#71717a;font-size:13px}
-.card .arrow{font-size:20px}
+h1{font-size:36px;margin:0 0 8px}
+.sub{color:#71717a;font-size:13px;margin-bottom:24px}
+.grid{display:grid;gap:12px}
+.card{border:1px solid #e5e5e5;border-radius:16px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;transition:.15s;background:#fff}
+.card:hover{border-color:#111;transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.06)}
+.card h3{margin:0 0 4px;font-size:17px}
+.card p{margin:0;color:#71717a;font-size:12px}
 a.card-link{text-decoration:none;color:inherit}
-.badge{font-size:10px;border:1px solid #e5e5e5;background:#fafafa;padding:2px 8px;border-radius:999px;letter-spacing:.05em}
+.badge{font-size:10px;border:1px solid #e5e5e5;background:#fafafa;padding:2px 8px;border-radius:999px}
+.loading{padding:40px;text-align:center;color:#71717a;font-size:14px}
 </style>
 </head>
 <body>
-<header><a href="/" style="font-weight:700;font-size:13px;letter-spacing:.08em;text-decoration:none;color:#111">DAEYANG.ORG</a><a href="/write/" style="background:#111;color:#fff;padding:8px 14px;border-radius:999px;font-size:12px;text-decoration:none">✏️ 새 글</a></header>
+<header><a href="/" style="font-weight:700;font-size:13px;letter-spacing:.08em;text-decoration:none;color:#111">DAEYANG.ORG</a><div style="display:flex;gap:8px"><a href="/write/" style="background:#fff;border:1px solid #e5e5e5;color:#111;padding:8px 14px;border-radius:999px;font-size:12px;text-decoration:none">🔍 복구 스캔</a><a href="/write/" style="background:#111;color:#fff;padding:8px 14px;border-radius:999px;font-size:12px;text-decoration:none">✏️ 새 글</a></div></header>
 <main class="wrap">
 <h1>Blog</h1>
-<div class="grid">
-<a class="card-link" href="/blog/billiards/"><div class="card"><div><h3>🎱 3 쿠션</h3><p>뒤돌리기, 옆돌리기, 앞돌리기 정리 · billiards</p></div><span class="arrow">→</span></div></a>
-<a class="card-link" href="/blog/swimming/"><div class="card"><div><h3>🏊 수영</h3><p>자유형, 평영, 접영 팁 정리 · swimming</p></div><span class="arrow">→</span></div></a>
-<!-- 새 글은 여기에 추가: 아래 한 줄 복사해서 slug, 제목만 바꾸면 됨
-<a class="card-link" href="/blog/travel/"><div class="card"><div><h3>✈️ 여행</h3><p>설명 · travel</p></div><span class="arrow">→</span></div></a>
--->
+<div class="sub" id="sub">GitHub에서 모든 블로그 폴더를 자동으로 불러오는 중... (사라진 글 복구)</div>
+<div id="grid" class="grid"><div class="loading">⏳ 스캔 중...</div></div>
+
+<div style="margin-top:24px;padding:14px;background:#fffbeb;border:1px solid #fde68a;border-radius:12px;font-size:12px;color:#92400e;line-height:1.6">
+<b>왜 사라졌나요?</b><br>
+제가 전에 드린 파일이 기존 목록을 덮어써서 2개만 남았어요. 이 파일은 GitHub API로 <code>/blog/</code> 안에 있는 모든 폴더를 자동으로 찾아서 보여주므로 앞으로 절대 안 사라집니다.<br><br>
+<b>설정:</b> 아래에 GitHub 정보를 입력하면 자동 스캔됩니다. (에디터와 같은 정보)
+<div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<input id="ghOwner" placeholder="Owner: dyscada" style="border:1px solid #e5e5e5;border-radius:8px;padding:8px;font-size:12px">
+<input id="ghRepo" placeholder="Repo: dyscada.github.io" style="border:1px solid #e5e5e5;border-radius:8px;padding:8px;font-size:12px">
 </div>
-<div style="margin-top:32px;padding:16px;background:#f8fafc;border:1px dashed #e2e8f0;border-radius:12px;font-size:12px;color:#64748b;line-height:1.6">
-💡 새 글 추가법: 에디터에서 slug에 `travel` 이라고 쓰고 저장하면, 위 카드 1줄만 복사해서 링크를 `/blog/travel/` 로 바꾸면 목록에 바로 뜹니다.<br>
-에디터 v9.2는 어떤 폴더든 자동 생성 가능합니다.
+<button id="scanBtn" style="margin-top:8px;width:100%;padding:10px;border-radius:8px;border:1px solid #111;background:#111;color:#fff;cursor:pointer;font-size:12px">다시 스캔</button>
 </div>
 </main>
+<script>
+const $=id=>document.getElementById(id);
+['ghOwner','ghRepo'].forEach(k=>{ const v=localStorage.getItem('writer92_'+k)||localStorage.getItem('writer91_'+k)||localStorage.getItem('writer9_'+k); if(v) $(k).value=v; });
+function save(){ localStorage.setItem('writer92_ghOwner', $('ghOwner').value); localStorage.setItem('writer92_ghRepo', $('ghRepo').value); }
+
+async function scan(){
+  const owner=$('ghOwner').value.trim()||'dyscada'; const repo=$('ghRepo').value.trim()||'dyscada.github.io';
+  const grid=$('grid'); const sub=$('sub');
+  grid.innerHTML='<div class="loading">⏳ '+owner+'/'+repo+' 에서 /blog/ 스캔 중...</div>';
+  save();
+  try{
+    // GitHub API로 blog 폴더 목록 가져오기
+    const api=`https://api.github.com/repos/${owner}/${repo}/contents/blog?ref=main`;
+    const res=await fetch(api);
+    if(!res.ok) throw new Error('API 실패: '+res.status+' - Repo 이름을 확인하세요');
+    const items=await res.json();
+    const folders=items.filter(i=>i.type==='dir').map(i=>i.name).sort();
+    if(folders.length===0) throw new Error('폴더가 없습니다');
+    sub.textContent=`✅ ${folders.length}개의 블로그를 찾았습니다 (자동 복구 완료)`;
+    grid.innerHTML=folders.map(name=>{
+      const emoji = name==='billiards'?'🎱':name==='swimming'?'🏊':name.includes('travel')?'✈️':name.includes('food')?'🍜':'📄';
+      return `<a class="card-link" href="/blog/${name}/"><div class="card"><div><h3>${emoji} ${name}</h3><p>blog/${name}/ · 클릭하여 보기</p></div><span>→</span></div></a>`;
+    }).join('');
+    // localStorage에 목록 저장 (백업용)
+    localStorage.setItem('blog_list_backup', JSON.stringify(folders));
+  }catch(err){
+    // 실패시 로컬 백업 또는 하드코딩된 목록으로 복구
+    const backup = JSON.parse(localStorage.getItem('blog_list_backup')||'[]');
+    const fallback = backup.length>0 ? backup : ['billiards','swimming'];
+    sub.textContent=`⚠️ 자동 스캔 실패 (${err.message}) - 백업 목록으로 표시 중. Owner/Repo 확인 후 다시 스캔을 눌러주세요`;
+    grid.innerHTML=fallback.map(name=>{
+      const emoji = name==='billiards'?'🎱':name==='swimming'?'🏊':'📄';
+      return `<a class="card-link" href="/blog/${name}/"><div class="card"><div><h3>${emoji} ${name}</h3><p>blog/${name}/</p></div><span>→</span></div></a>`;
+    }).join('') + `<div style="margin-top:16px;font-size:11px;color:#71717a">GitHub에 실제로는 더 많은 폴더가 있을 수 있습니다. Owner/Repo를 정확히 입력하면 모두 복구됩니다.</div>`;
+  }
+}
+$('scanBtn').addEventListener('click',scan);
+// 자동 스캔
+scan();
+</script>
 </body>
 </html>
