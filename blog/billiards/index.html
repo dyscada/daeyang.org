@@ -1,83 +1,42 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>3 쿠션 — DAEYANG.ORG</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400&display=swap" rel="stylesheet">
-<style>
-  *{box-sizing:border-box}
-  body{margin:0;background:#fff;color:#18181b;font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;}
-  a{color:inherit;text-decoration:none}
-  header{border-bottom:1px solid #e4e4e7;height:56px;display:flex;align-items:center;padding:0 24px;position:sticky;top:0;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);z-index:10;justify-content:space-between}
-  .brand{font-weight:600;letter-spacing:0.08em;font-size:13px}
-  .edit-btn{font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:1px solid #e4e4e7;padding:6px 12px;border-radius:999px;color:#52525b;background:#fafafa}
-  .edit-btn:hover{background:#111;color:#fff;border-color:#111}
-  .wrap{max-width:680px;margin:0 auto;padding:48px 24px 120px}
-  .meta{font-size:13px;color:#71717a;margin-bottom:28px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  .meta .dot{width:3px;height:3px;background:#d4d4d8;border-radius:50%}
-  .tag{display:inline-flex;border:1px solid #e4e4e7;border-radius:999px;padding:2px 9px;font-size:11px;letter-spacing:.02em;margin-right:6px;color:#52525b;background:#fafafa}
-  h1{font-family:'Newsreader',serif;font-size:38px;line-height:1.1;letter-spacing:-0.03em;font-weight:400;margin:0 0 18px;color:#18181b}
-  h2{font-size:22px;line-height:1.25;letter-spacing:-0.02em;margin:40px 0 12px;font-weight:600}
-  p{font-size:16.5px;line-height:1.85;letter-spacing:-0.01em;color:#27272a;margin:0 0 18px}
-  p.muted{color:#a1a1aa}
-  hr{border:0;border-top:1px solid #e4e4e7;margin:48px 0}
-  .video{margin:20px 0 28px; border-radius:16px; overflow:hidden; border:1px solid #e4e4e7; background:#000; aspect-ratio:16/9; }
-  .video iframe{width:100%;height:100%;display:block;border:0}
-  /* 여기가 핵심 - 본문 링크 파란색 */
-  article a{color:#2563eb !important; text-decoration:underline !important; text-underline-offset:3px; }
-  article a:hover{color:#1d4ed8 !important}
-  footer{max-width:680px;margin:0 auto;padding:0 24px 48px;color:#a1a1aa;font-size:12px}
-  .fab{position:fixed;bottom:24px;right:24px;background:#111;color:#fff;padding:12px 18px;border-radius:999px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:99;display:flex;align-items:center;gap:6px}
-  @media(max-width:640px){h1{font-size:30px}.wrap{padding-top:32px}.fab{bottom:16px;right:16px}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>3 쿠션 — DAEYANG.ORG</title>
+  <style>
+    body{margin:0;background:#fff;color:#18181b;font-family:Inter,sans-serif;line-height:1.8}
+    .wrap{max-width:680px;margin:0 auto;padding:48px 24px}
+    h1{font-size:36px} h2{font-size:22px;margin:32px 0 12px}
+    p{margin:16px 0;word-break:break-all}
+    .video{margin:24px 0 8px;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid #e5e5e5;background:#000}
+    .video iframe{width:100%;height:100%;border:0}
+    .video-caption{font-size:12px;color:#71717a;margin:8px 2px 24px;display:flex;gap:6px;align-items:center}
+    article a, .content a{color:#2563eb;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+    article a:hover{color:#1d4ed8}
+  </style>
 </head>
 <body>
-<header>
-  <a class="brand" href="/">DAEYANG.ORG</a>
-  <a class="edit-btn" href="/write/?edit=billiards">✏️ Edit this post</a>
-</header>
-<main class="wrap">
-  <div class="meta"><span>2026-08-25</span><span class="dot"></span><span>/blog/billiards/</span></div>
-  <h1>3 쿠션</h1>
-  <div class="meta" style="margin-top:-6px;margin-bottom:36px"><span class="tag">billiards</span></div>
-  <article>
-    <h2>뒤돌리기</h2>
-    <p>내공이 45도로 가면 득점 확률이 50% 올라가는 자리. 두께 1/2, 당점 상단.</p>
+  <div class="wrap">
+    <div>billiards / 2026-08-25</div>
+    <h1>3 쿠션</h1>
+    <div class="content">
+<p>뒤돌리기</p>
 
-    <div class="video">
-      <iframe
-        src="https://www.youtube-nocookie.com/embed/SROZvzcYSgg"
-        title="당구 45도 각도의 비밀"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen
-        loading="lazy">
-      </iframe>
+<p><a href="https://www.youtube.com/watch?v=SROZvzcYSgg" target="_blank" rel="noopener">https://www.youtube.com/watch?v=SROZvzcYSgg</a></p>
+
+<p>옆돌리기</p>
+
+<p><a href="https://www.youtube.com/watch?v=SROZvzcYSgg" target="_blank" rel="noopener">https://www.youtube.com/watch?v=SROZvzcYSgg</a></p>
+
+<p>앞돌리기</p>
+
+<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/SROZvzcYSgg" frameborder="0" allowfullscreen loading="lazy"></iframe></div><div class="video-caption"><span style="background:#ff0000;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700">YouTube</span><a href="https://www.youtube.com/watch?v=SROZvzcYSgg" target="_blank">youtube.com/watch?v=SROZvzcYSgg</a></div>
+
+<p>비껴치기</p>
+
+<p>걸어치기</p>
     </div>
-
-    <p style="margin-top:12px">
-      <a href="https://www.youtube.com/watch?v=SROZvzcYSgg" target="_blank">▶ 유튜브에서 원본 보기 - 45도 각도의 비밀</a>
-    </p>
-
-    <h2>옆돌리기</h2>
-    <p class="muted">내용 추가 예정</p>
-
-    <h2>앞돌리기</h2>
-    <p class="muted">내용 추가 예정</p>
-
-    <h2>비껴치기</h2>
-    <p class="muted">내용 추가 예정</p>
-
-    <h2>걸어치기</h2>
-    <p class="muted">내용 추가 예정</p>
-  </article>
-  <hr>
-  <div style="font-size:13px;color:#71717a">© DAEYANG.ORG — 현장의 기록</div>
-</main>
-
-<a class="fab" href="/write/?edit=billiards">✏️ Edit</a>
-
-<footer>Static HTML generated by DAEYANG Writer v5</footer>
+  </div>
 </body>
 </html>
