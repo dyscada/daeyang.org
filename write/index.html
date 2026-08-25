@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DAEYANG Writer</title>
+<title>DAEYANG Writer v6</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#fafafa;font-family:Inter,sans-serif}
 header{height:56px;background:#fff;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;padding:0 20px;justify-content:space-between}
@@ -11,54 +11,82 @@ header{height:56px;background:#fff;border-bottom:1px solid #e5e5e5;display:flex;
 .right{padding:24px;background:#fafafa}
 label{font-size:11px;color:#888;letter-spacing:.1em;text-transform:uppercase;display:block;margin:16px 0 6px}
 input,textarea{width:100%;border:1px solid #e5e5e5;border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit}
-textarea{height:480px;line-height:1.6}
+textarea{height:520px;line-height:1.6}
 .btn{padding:9px 14px;border-radius:8px;border:1px solid #e5e5e5;background:#fff;cursor:pointer;font-size:13px}
 .btn.black{background:#111;color:#fff;border-color:#111}
-pre{white-space:pre-wrap;word-break:break-all}
-#preview{border:1px solid #e5e5e5;background:#fff;border-radius:12px;padding:24px}
-#preview .video iframe{width:100%;height:360px;border-radius:12px}
+#preview{border:1px solid #e5e5e5;background:#fff;border-radius:12px;padding:24px;line-height:1.7}
+#preview h2{font-size:20px;margin:24px 0 10px}
+#preview p{margin:14px 0;color:#27272a}
+#preview a{color:#2563eb !important; text-decoration:underline !important; text-underline-offset:3px;}
+#preview .video{margin:20px 0; aspect-ratio:16/9; border-radius:12px; overflow:hidden; border:1px solid #e5e5e5; background:#000}
+#preview .video iframe{width:100%;height:100%;border:0;display:block}
+#srcPreview{margin-top:16px;background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:16px;font-size:11px;max-height:300px;overflow:auto;white-space:pre-wrap;word-break:break-all}
+.help{font-size:12px;color:#888;background:#f9fafb;border:1px dashed #e5e5e5;padding:12px;border-radius:8px;margin-top:12px;line-height:1.6}
 </style>
 </head>
 <body>
-<header><b>DAEYANG WRITER v5 - 줄바꿈 수정판</b><span style="font-size:12px;color:#888">/write/</span></header>
+<header><b>DAEYANG WRITER v6 - 링크 파란색 수정</b><a href="/blog/billiards/" style="font-size:12px;color:#888;text-decoration:none">← Blog</a></header>
 <div class="wrap">
 <div class="left">
-<div style="display:flex;gap:8px"><input id="slug" placeholder="billiards" value="billiards"><button class="btn" id="load">불러오기</button></div>
+<div style="display:flex;gap:8px"><input id="slug" value="billiards"><button class="btn" id="load">불러오기</button></div>
 <label>제목</label><input id="title" value="3 쿠션">
 <label>태그</label><input id="tag" value="billiards">
 <label>날짜</label><input id="date" type="date">
-<label>내용 - 유튜브 링크는 한 줄에 하나씩</label><textarea id="body">뒤돌리기
+<label>내용</label>
+<textarea id="body">뒤돌리기
 
 내공이 45도로 가면 득점 확률이 50% 올라가는 자리.
 
 https://www.youtube.com/watch?v=SROZvzcYSgg
 
+[유튜브에서 원본 보기](https://www.youtube.com/watch?v=SROZvzcYSgg)
+
 옆돌리기
 
-앞돌리기
-</textarea>
+앞돌리기</textarea>
+
+<div class="help">
+<b>입력 방법:</b><br>
+• 퍼오기 (영상 박기): <code>https://www.youtube.com/watch?v=...</code> 한 줄에 단독<br>
+• 링크만 (파란색): <code>[보이는 글자](https://...)</code> 또는 <code>링크: https://...</code>
+</div>
+
 <div style="margin-top:16px;display:flex;gap:8px">
-<button class="btn black" id="dl">HTML 다운로드 (예쁘게)</button>
+<button class="btn black" id="dl">HTML 다운로드</button>
 <button class="btn" id="copy">소스 복사</button>
 </div>
 <div id="status" style="font-size:11px;color:#888;margin-top:10px"></div>
 </div>
 <div class="right">
 <div id="preview"></div>
-<pre id="srcPreview" style="margin-top:16px;background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:16px;font-size:11px;max-height:400px;overflow:auto"></pre>
+<pre id="srcPreview"></pre>
 </div>
 </div>
 <script>
 const $=id=>document.getElementById(id);
 $('date').valueAsDate=new Date();
-function ytId(s){try{const u=new URL(s.trim()); if(u.hostname.includes('youtu.be')) return u.pathname.slice(1); if(u.searchParams.get('v')) return u.searchParams.get('v'); const m=s.match(/embed\/([^?&]+)/); if(m) return m[1];}catch(e){} return null;}
+function ytId(s){try{const u=new URL(s.trim()); if(u.hostname.includes('youtu.be')) return u.pathname.slice(1).split('?')[0]; if(u.searchParams.get('v')) return u.searchParams.get('v'); const m=s.match(/embed\/([^?&]+)/); if(m) return m[1];}catch(e){} return null;}
+function parseLink(text){
+  // [text](url)
+  const mdLink = text.match(/^\[(.+?)\]\((https?:\/\/[^\s]+)\)$/);
+  if(mdLink) return `<a href="${mdLink[2]}" target="_blank">${mdLink[1]}</a>`;
+  // 링크: url
+  if(text.startsWith('링크:')){ const url=text.slice(3).trim(); return `<a href="${url}" target="_blank">${url}</a>`; }
+  return null;
+}
 function mdToHtml(md){
   return md.split('\n').map(line=>{
-    const t=line.trim(); if(!t) return '';
+    const raw=line; const t=line.trim(); if(!t) return '';
     if(t.startsWith('## ')) return `    <h2>${t.slice(3)}</h2>`;
-    const yid=ytId(t); if(yid && t.startsWith('http')) return `    <div class="video">\n      <iframe src="https://www.youtube-nocookie.com/embed/${yid}" frameborder="0" allowfullscreen></iframe>\n    </div>`;
+    const linkHtml = parseLink(t);
+    if(linkHtml) return `    <p>${linkHtml}</p>`;
+    const yid=ytId(t);
+    if(yid && t.startsWith('http') && t.includes('youtu')) return `    <div class="video">\n      <iframe src="https://www.youtube-nocookie.com/embed/${yid}" frameborder="0" allowfullscreen></iframe>\n    </div>`;
     if(t.startsWith('- ')) return `    <li>${t.slice(2)}</li>`;
-    return `    <p>${t}</p>`;
+    // 일반 텍스트 안의 URL도 링크로
+    let escaped = raw.replace(/\[(.+?)\]\((https?:\/\/[^\s]+)\)/g,'<a href="$2" target="_blank">$1</a>');
+    if(escaped===raw && t.startsWith('http')) escaped=`<a href="${t}" target="_blank">${t}</a>`;
+    return `    <p>${escaped}</p>`;
   }).join('\n');
 }
 function build(){
@@ -75,8 +103,10 @@ return `<!DOCTYPE html>
     h1 { font-size:36px; }
     h2 { font-size:22px; margin:32px 0 12px; }
     p { margin:16px 0; }
-    .video { margin:24px 0; aspect-ratio:16/9; border-radius:12px; overflow:hidden; border:1px solid #e5e5e5; }
+    .video { margin:24px 0; aspect-ratio:16/9; border-radius:12px; overflow:hidden; border:1px solid #e5e5e5; background:#000; }
     .video iframe { width:100%; height:100%; border:0; }
+    article a, .content a { color:#2563eb; text-decoration:underline; text-underline-offset:3px; }
+    article a:hover { color:#1d4ed8; }
   </style>
 </head>
 <body>
@@ -92,13 +122,12 @@ ${content}
 `;
 }
 function render(){
-  const html=build();
   const content=mdToHtml($('body').value);
   $('preview').innerHTML=`<h1>${$('title').value}</h1><div>${content}</div>`;
-  $('srcPreview').textContent=html;
+  $('srcPreview').textContent=build();
 }
 $('title').addEventListener('input',render); $('tag').addEventListener('input',render); $('body').addEventListener('input',render); $('date').addEventListener('change',render);
-$('dl').addEventListener('click',()=>{ const html=build(); const blob=new Blob([html],{type:'text/html'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='index.html'; a.click(); $('status').textContent='다운로드 완료 - 이제 줄바꿈 예쁘게 됨!'; });
+$('dl').addEventListener('click',()=>{ const html=build(); const blob=new Blob([html],{type:'text/html'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='index.html'; a.click(); $('status').textContent='다운로드 완료 - 파란 링크 포함!'; });
 $('copy').addEventListener('click',()=>{ navigator.clipboard.writeText(build()); $('status').textContent='복사됨'; });
 $('load').addEventListener('click',async()=>{
   const slug=$('slug').value.trim(); if(!slug) return;
@@ -108,17 +137,7 @@ $('load').addEventListener('click',async()=>{
     const txt=await res.text();
     const doc=new DOMParser().parseFromString(txt,'text/html');
     const h1=doc.querySelector('h1'); if(h1) $('title').value=h1.textContent.trim();
-    const content=doc.querySelector('.content')||doc.querySelector('article')||doc.querySelector('.wrap');
-    if(content){
-      let md=''; content.childNodes.forEach(n=>{
-        if(n.tagName==='H2') md+=n.textContent.trim()+'\n\n';
-        if(n.tagName==='P') md+=n.textContent.trim()+'\n\n';
-        if(n.tagName==='DIV' && n.classList.contains('video')){ const ifr=n.querySelector('iframe'); if(ifr){ const m=ifr.src.match(/embed\/([^?]+)/); if(m) md+=`https://www.youtube.com/watch?v=${m[1]}\n\n`; } }
-        if(n.nodeType===3 && n.textContent.trim()) md+=n.textContent.trim()+'\n\n';
-      });
-      $('body').value=md.trim();
-    }
-    render(); $('status').textContent='불러오기 성공';
+    $('status').textContent='불러오기 성공';
   }catch(e){ $('status').textContent='실패: '+e.message; }
 });
 render();
