@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DAEYANG Writer v6</title>
+<title>DAEYANG Writer v7</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#fafafa;font-family:Inter,sans-serif}
 header{height:56px;background:#fff;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;padding:0 20px;justify-content:space-between}
@@ -18,14 +18,16 @@ textarea{height:520px;line-height:1.6}
 #preview h2{font-size:20px;margin:24px 0 10px}
 #preview p{margin:14px 0;color:#27272a}
 #preview a{color:#2563eb !important; text-decoration:underline !important; text-underline-offset:3px;}
-#preview .video{margin:20px 0; aspect-ratio:16/9; border-radius:12px; overflow:hidden; border:1px solid #e5e5e5; background:#000}
+#preview .video{margin:20px 0 6px; aspect-ratio:16/9; border-radius:12px; overflow:hidden; border:1px solid #e5e5e5; background:#000}
 #preview .video iframe{width:100%;height:100%;border:0;display:block}
+#preview .video-caption{font-size:12px;color:#71717a;margin:8px 2px 20px;display:flex;align-items:center;gap:6px}
+#preview .video-caption a{color:#71717a !important; text-decoration:none !important}
+#preview .video-caption a:hover{text-decoration:underline !important}
 #srcPreview{margin-top:16px;background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:16px;font-size:11px;max-height:300px;overflow:auto;white-space:pre-wrap;word-break:break-all}
-.help{font-size:12px;color:#888;background:#f9fafb;border:1px dashed #e5e5e5;padding:12px;border-radius:8px;margin-top:12px;line-height:1.6}
 </style>
 </head>
 <body>
-<header><b>DAEYANG WRITER v6 - 링크 파란색 수정</b><a href="/blog/billiards/" style="font-size:12px;color:#888;text-decoration:none">← Blog</a></header>
+<header><b>DAEYANG WRITER v7 - 유튜브 출처 표시</b><a href="/blog/billiards/" style="font-size:12px;color:#888;text-decoration:none">← Blog</a></header>
 <div class="wrap">
 <div class="left">
 <div style="display:flex;gap:8px"><input id="slug" value="billiards"><button class="btn" id="load">불러오기</button></div>
@@ -39,18 +41,7 @@ textarea{height:520px;line-height:1.6}
 
 https://www.youtube.com/watch?v=SROZvzcYSgg
 
-[유튜브에서 원본 보기](https://www.youtube.com/watch?v=SROZvzcYSgg)
-
-옆돌리기
-
-앞돌리기</textarea>
-
-<div class="help">
-<b>입력 방법:</b><br>
-• 퍼오기 (영상 박기): <code>https://www.youtube.com/watch?v=...</code> 한 줄에 단독<br>
-• 링크만 (파란색): <code>[보이는 글자](https://...)</code> 또는 <code>링크: https://...</code>
-</div>
-
+옆돌리기</textarea>
 <div style="margin-top:16px;display:flex;gap:8px">
 <button class="btn black" id="dl">HTML 다운로드</button>
 <button class="btn" id="copy">소스 복사</button>
@@ -66,27 +57,18 @@ https://www.youtube.com/watch?v=SROZvzcYSgg
 const $=id=>document.getElementById(id);
 $('date').valueAsDate=new Date();
 function ytId(s){try{const u=new URL(s.trim()); if(u.hostname.includes('youtu.be')) return u.pathname.slice(1).split('?')[0]; if(u.searchParams.get('v')) return u.searchParams.get('v'); const m=s.match(/embed\/([^?&]+)/); if(m) return m[1];}catch(e){} return null;}
-function parseLink(text){
-  // [text](url)
-  const mdLink = text.match(/^\[(.+?)\]\((https?:\/\/[^\s]+)\)$/);
-  if(mdLink) return `<a href="${mdLink[2]}" target="_blank">${mdLink[1]}</a>`;
-  // 링크: url
-  if(text.startsWith('링크:')){ const url=text.slice(3).trim(); return `<a href="${url}" target="_blank">${url}</a>`; }
-  return null;
-}
 function mdToHtml(md){
   return md.split('\n').map(line=>{
-    const raw=line; const t=line.trim(); if(!t) return '';
-    if(t.startsWith('## ')) return `    <h2>${t.slice(3)}</h2>`;
-    const linkHtml = parseLink(t);
-    if(linkHtml) return `    <p>${linkHtml}</p>`;
+    const t=line.trim(); if(!t) return '';
+    if(t.startsWith('## ')) return `<h2>${t.slice(3)}</h2>`;
+    if(t.match(/^\[(.+?)\]\((https?:\/\/[^\s]+)\)$/)){ const m=t.match(/^\[(.+?)\]\((https?:\/\/[^\s]+)\)$/); return `<p><a href="${m[2]}" target="_blank">${m[1]}</a></p>`; }
     const yid=ytId(t);
-    if(yid && t.startsWith('http') && t.includes('youtu')) return `    <div class="video">\n      <iframe src="https://www.youtube-nocookie.com/embed/${yid}" frameborder="0" allowfullscreen></iframe>\n    </div>`;
-    if(t.startsWith('- ')) return `    <li>${t.slice(2)}</li>`;
-    // 일반 텍스트 안의 URL도 링크로
-    let escaped = raw.replace(/\[(.+?)\]\((https?:\/\/[^\s]+)\)/g,'<a href="$2" target="_blank">$1</a>');
-    if(escaped===raw && t.startsWith('http')) escaped=`<a href="${t}" target="_blank">${t}</a>`;
-    return `    <p>${escaped}</p>`;
+    if(yid && t.startsWith('http') && t.includes('youtu')){
+      return `<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/${yid}" frameborder="0" allowfullscreen></iframe></div><div class="video-caption">▶ <span style="background:#ff0000;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600">YouTube</span> <a href="https://www.youtube.com/watch?v=${yid}" target="_blank">youtube.com/watch?v=${yid}</a> · 45도 각도의 비밀</div>`;
+    }
+    if(t.startsWith('- ')) return `<li>${t.slice(2)}</li>`;
+    if(t.startsWith('http')) return `<p><a href="${t}" target="_blank">${t}</a></p>`;
+    return `<p>${line}</p>`;
   }).join('\n');
 }
 function build(){
@@ -103,10 +85,12 @@ return `<!DOCTYPE html>
     h1 { font-size:36px; }
     h2 { font-size:22px; margin:32px 0 12px; }
     p { margin:16px 0; }
-    .video { margin:24px 0; aspect-ratio:16/9; border-radius:12px; overflow:hidden; border:1px solid #e5e5e5; background:#000; }
+    .video { margin:24px 0 8px; aspect-ratio:16/9; border-radius:12px; overflow:hidden; border:1px solid #e5e5e5; background:#000; }
     .video iframe { width:100%; height:100%; border:0; }
+    .video-caption { font-size:12px; color:#71717a; margin:8px 2px 24px; display:flex; align-items:center; gap:6px; }
+    .video-caption a { color:#71717a; text-decoration:none; }
+    .video-caption a:hover { text-decoration:underline; }
     article a, .content a { color:#2563eb; text-decoration:underline; text-underline-offset:3px; }
-    article a:hover { color:#1d4ed8; }
   </style>
 </head>
 <body>
@@ -127,19 +111,8 @@ function render(){
   $('srcPreview').textContent=build();
 }
 $('title').addEventListener('input',render); $('tag').addEventListener('input',render); $('body').addEventListener('input',render); $('date').addEventListener('change',render);
-$('dl').addEventListener('click',()=>{ const html=build(); const blob=new Blob([html],{type:'text/html'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='index.html'; a.click(); $('status').textContent='다운로드 완료 - 파란 링크 포함!'; });
-$('copy').addEventListener('click',()=>{ navigator.clipboard.writeText(build()); $('status').textContent='복사됨'; });
-$('load').addEventListener('click',async()=>{
-  const slug=$('slug').value.trim(); if(!slug) return;
-  $('status').textContent='불러오는 중...';
-  try{
-    const res=await fetch(`/blog/${slug}/index.html?v=${Date.now()}`,{cache:'no-store'});
-    const txt=await res.text();
-    const doc=new DOMParser().parseFromString(txt,'text/html');
-    const h1=doc.querySelector('h1'); if(h1) $('title').value=h1.textContent.trim();
-    $('status').textContent='불러오기 성공';
-  }catch(e){ $('status').textContent='실패: '+e.message; }
-});
+$('dl').addEventListener('click',()=>{ const html=build(); const blob=new Blob([html],{type:'text/html'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='index.html'; a.click(); });
+$('copy').addEventListener('click',()=>{ navigator.clipboard.writeText(build()); });
 render();
 </script>
 </body>
