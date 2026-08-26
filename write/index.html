@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DAEYANG Writer v9.9 - GitHub 설정 항상 열림</title>
+<title>DAEYANG Writer v10.1 - 기본 접힘</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#fafafa;font-family:Inter,sans-serif}
 header{height:56px;background:#fff;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;padding:0 20px;justify-content:space-between;position:sticky;top:0;z-index:20}
@@ -18,22 +18,18 @@ textarea{height:340px;line-height:1.7;resize:vertical}
 #preview a{color:#2563eb !important;text-decoration:underline !important;word-break:break-all}
 #preview .video{margin:14px 0 24px;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000}
 #preview .video iframe{width:100%;height:100%;border:0}
-/* v9.9 - GitHub 설정 항상 열려있고 눈에 띄게 */
-.github-section{margin-top:24px;border:2px solid #2563eb;border-radius:16px;overflow:hidden;background:#eff6ff}
-.github-header{background:#2563eb;color:#fff;padding:12px 16px;font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
-.github-box{padding:16px;background:#fff;display:block}
-.github-box input{margin-bottom:8px}
-.github-box label{margin-top:12px;color:#2563eb}
-.github-box label:first-child{margin-top:0}
+.github-section{margin-top:24px;border:1px solid #e5e5e5;border-radius:16px;overflow:hidden;background:#fff;transition:.2s}
+.github-section.open{border-color:#2563eb}
+.github-header{background:#f8fafc;color:#111;padding:12px 16px;font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none}
+.github-section.open .github-header{background:#2563eb;color:#fff}
+.github-box{padding:16px;background:#fff;display:none}
+.github-section.open .github-box{display:block}
 .status{margin-top:12px;padding:12px;border-radius:10px;font-size:12px;display:none}.status.ok{display:block;background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}.status.err{display:block;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}.status.info{display:block;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
 .small{font-size:11px;color:#666;margin-top:6px;line-height:1.5}
-.qrbox{margin-top:12px;padding:12px;background:#f8fafc;border:1px dashed #e5e5e5;border-radius:12px}
-.highlight-pulse{animation:pulse 2s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(37,99,235,.4)}70%{box-shadow:0 0 0 12px rgba(37,99,235,0)}100%{box-shadow:0 0 0 0 rgba(37,99,235,0)}}
 </style>
 </head>
 <body>
-<header><b>DAEYANG WRITER v9.9</b><span style="font-size:11px;color:#fff;background:#2563eb;padding:4px 10px;border-radius:999px">GitHub 설정 찾기 쉬움</span></header>
+<header><b>DAEYANG WRITER v10.1</b><span style="font-size:11px;color:#71717a;background:#f4f4f5;padding:4px 10px;border-radius:999px">기본 접힘</span></header>
 <div class="wrap">
 <div class="left">
 <label>SLUG</label><input id="slug" value="billiards">
@@ -45,34 +41,22 @@ textarea{height:340px;line-height:1.7;resize:vertical}
 https://www.youtube.com/watch?v=xXro5D_Kk2M&t=15s
 </textarea>
 
-<!-- v9.9 - 항상 열려있는 GitHub 설정 - 찾기 쉽게 파란 테두리 + 깜빡임 -->
-<div class="github-section highlight-pulse" id="ghSection">
-<div class="github-header"><span>🔑 GitHub 설정 - 여기에 토큰 넣기!</span><span style="background:rgba(255,255,255,.2);padding:2px 8px;border-radius:999px;font-size:10px">필수</span></div>
+<div class="github-section" id="ghSection">
+<div class="github-header" id="ghHeader"><span>🔑 GitHub 설정</span><span id="toggleIcon">▶ 펼치기</span></div>
 <div class="github-box" id="ghBox">
-<label>Owner</label><input id="ghOwner" value="dyscada">
+<label style="margin-top:0">Owner</label><input id="ghOwner" value="dyscada">
 <label>Repo</label><input id="ghRepo" value="daeyang.org">
 <label>Branch</label><input id="ghBranch" value="main">
-<label>Token (ghp_...)</label><input id="ghToken" type="password" placeholder="GitHub에서 발급받은 토큰 붙여넣기">
-<div class="small">
-👉 <b>토큰 발급:</b> GitHub.com → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token<br>
-👉 권한: repo 체크<br>
-👉 이 토큰은 이 브라우저에만 저장됩니다
-</div>
+<label>Token (ghp_...)</label><input id="ghToken" type="password" placeholder="토큰 붙여넣기">
+<div class="small">다른 기기 공유 버튼</div>
 <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
-<button class="btn" id="exportBtn" style="font-size:11px">📤 다른 기기용 링크</button>
-<button class="btn" id="importBtn" style="font-size:11px">📥 링크로 가져오기</button>
+<button class="btn" id="exportBtn" style="font-size:11px">📤 링크 생성</button><button class="btn" id="importBtn" style="font-size:11px">📥 가져오기</button>
 </div>
-<div id="qrbox" class="qrbox" style="display:none">
-<input id="shareLink" readonly style="font-size:11px;background:#fafafa;width:100%;border:1px solid #e5e5e5;border-radius:8px;padding:8px;margin-top:8px">
-<button class="btn" id="copyLink" style="margin-top:8px;font-size:11px">링크 복사</button>
-</div>
+<div id="qrbox" style="display:none;margin-top:12px"><input id="shareLink" readonly style="font-size:11px"><button class="btn" id="copyLink" style="margin-top:8px;font-size:11px">복사</button></div>
 </div>
 </div>
 
-<div style="margin-top:20px">
-<button class="btn blue" id="saveGh">🚀 GitHub에 저장</button>
-<div class="row2"><button class="btn black" id="dl">💾 다운로드</button><button class="btn" id="copyBtn">📋 복사</button></div>
-</div>
+<div style="margin-top:20px"><button class="btn blue" id="saveGh">🚀 GitHub에 저장</button><div class="row2"><button class="btn black" id="dl">💾 다운로드</button><button class="btn" id="copyBtn">📋 복사</button></div></div>
 <div id="status" class="status"></div>
 </div>
 <div class="right"><div id="preview"></div></div>
@@ -83,14 +67,17 @@ const $=id=>document.getElementById(id);
 if(!$('ghOwner').value) $('ghOwner').value='dyscada'; if(!$('ghRepo').value) $('ghRepo').value='daeyang.org';
 function saveLocal(){ ['ghOwner','ghRepo','ghBranch','ghToken'].forEach(k=>localStorage.setItem('writer92_'+k, $(k).value)); }
 document.querySelectorAll('#ghBox input').forEach(el=>el.addEventListener('input',saveLocal));
-
-// 공유
+const ghSection=$('ghSection'); const ghHeader=$('ghHeader'); const toggleIcon=$('toggleIcon');
+// v10.1 기본 접힘: localStorage에 값이 없으면 접힘
+let isOpen = localStorage.getItem('gh_collapsed_v101') ? localStorage.getItem('gh_collapsed_v101')==='open' : false;
+function apply(){ if(isOpen){ ghSection.classList.add('open'); toggleIcon.textContent='▼ 접기'; } else { ghSection.classList.remove('open'); toggleIcon.textContent='▶ 펼치기'; } }
+apply();
+ghHeader.addEventListener('click',()=>{ isOpen=!isOpen; localStorage.setItem('gh_collapsed_v101', isOpen?'open':'collapsed'); apply(); });
 function makeShareLink(){ const data={owner:$('ghOwner').value, repo:$('ghRepo').value, branch:$('ghBranch').value, token:$('ghToken').value}; const b64=btoa(unescape(encodeURIComponent(JSON.stringify(data)))); return location.origin+location.pathname+'?config='+b64; }
-$('exportBtn').addEventListener('click',()=>{ if(!$('ghToken').value){ alert('토큰을 먼저 입력하세요'); return; } $('shareLink').value=makeShareLink(); $('qrbox').style.display='block'; });
+$('exportBtn').addEventListener('click',()=>{ if(!$('ghToken').value){ alert('토큰 입력 필요'); return; } $('shareLink').value=makeShareLink(); $('qrbox').style.display='block'; });
 $('copyLink').addEventListener('click',()=>{ $('shareLink').select(); document.execCommand('copy'); $('status').className='status ok'; $('status').textContent='링크 복사됨'; });
-$('importBtn').addEventListener('click',()=>{ const input=prompt('공유 링크 붙여넣기'); if(!input) return; try{ const m=input.match(/config=([^&]+)/); const b64=m?m[1]:input; const data=JSON.parse(decodeURIComponent(escape(atob(b64)))); if(data.owner) $('ghOwner').value=data.owner; if(data.repo) $('ghRepo').value=data.repo; if(data.branch) $('ghBranch').value=data.branch; if(data.token) $('ghToken').value=data.token; saveLocal(); $('status').className='status ok'; $('status').textContent='✅ 가져오기 성공!'; }catch(e){ alert('실패: '+e.message); } });
+$('importBtn').addEventListener('click',()=>{ const input=prompt('공유 링크'); if(!input) return; try{ const m=input.match(/config=([^&]+)/); const b64=m?m[1]:input; const data=JSON.parse(decodeURIComponent(escape(atob(b64)))); if(data.owner) $('ghOwner').value=data.owner; if(data.repo) $('ghRepo').value=data.repo; if(data.branch) $('ghBranch').value=data.branch; if(data.token) $('ghToken').value=data.token; saveLocal(); $('status').className='status ok'; $('status').textContent='✅ 가져오기 성공'; }catch(e){ alert('실패'); } });
 (function(){ const cfg=new URLSearchParams(location.search).get('config'); if(cfg){ try{ const data=JSON.parse(decodeURIComponent(escape(atob(cfg)))); if(data.owner) $('ghOwner').value=data.owner; if(data.repo) $('ghRepo').value=data.repo; if(data.branch) $('ghBranch').value=data.branch; if(data.token) $('ghToken').value=data.token; saveLocal(); }catch(e){} } })();
-
 function extractYtId(url){ try{ const u=new URL(url); if(u.hostname.includes('youtu.be')) return u.pathname.slice(1).split('/')[0].slice(0,11); if(u.searchParams.get('v')) return u.searchParams.get('v').slice(0,11); }catch(e){ const m=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/); if(m) return m[1]; } return null; }
 function extractStart(url){ try{ const u=new URL(url); const t=u.searchParams.get('t')||u.searchParams.get('start'); if(!t) return ''; let sec=0; if(/^\d+$/.test(t)) sec=parseInt(t); else { const m=t.match(/(?:(\d+)m)?(?:(\d+)s)?/); if(m) sec=(parseInt(m[1]||0)*60)+parseInt(m[2]||0); } return sec?`?start=${sec}`:''; }catch(e){ return ''; } }
 function mdToHtml(md){ return md.split('\n').map(line=>{ const t=line.trim(); if(!t) return ''; if(t.startsWith('## ')) return `<h2>${t.slice(3)}</h2>`; const onlyUrlMatch=t.match(/^https?:\/\/\S+$/); if(onlyUrlMatch){ const url=onlyUrlMatch[0]; const yid=extractYtId(url); if(yid){ const start=extractStart(url); return `<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/${yid}${start}" allowfullscreen loading="lazy"></iframe></div>`; } else { return `<p><a href="${url}" target="_blank">${url}</a></p>`; } } else { let linked=line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/(https?:\/\/[^\s]+)/g,(url)=>{ const clean=url.replace(/[.,!?)]+$/,''); const trail=url.slice(clean.length); return `<a href="${clean}" target="_blank">${clean}</a>${trail}`; }); return `<p>${linked}</p>`; } }).join('\n'); }
@@ -101,7 +88,7 @@ async function loadExisting(){ const editSlug=new URLSearchParams(location.searc
 loadExisting();
 $('dl').addEventListener('click',()=>{ const b=new Blob([buildHtml()],{type:'text/html'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='index.html'; a.click(); });
 $('copyBtn').addEventListener('click',()=>{ navigator.clipboard.writeText(buildHtml()); $('status').className='status ok'; $('status').textContent='복사됨'; });
-async function saveToGithub(){ const owner=$('ghOwner').value.trim(), repo=$('ghRepo').value.trim(), token=$('ghToken').value.trim(), branch=$('ghBranch').value.trim()||'main', slug=$('slug').value.trim(); const status=$('status'); if(!owner||!repo||!token){ status.className='status err'; status.textContent='Token 필요 - 파란 박스 안에 입력하세요!'; document.getElementById('ghSection').scrollIntoView({behavior:'smooth'}); return; } saveLocal(); status.className='status info'; status.textContent='⏳ 저장 중...'; try{ const path=`blog/${slug}/index.html`; const apiBase=`https://api.github.com/repos/${owner}/${repo}/contents/${path}`; let sha=null; try{ const getRes=await fetch(`${apiBase}?ref=${branch}`,{headers:{Authorization:`token ${token}`}}); if(getRes.ok){ const j=await getRes.json(); sha=j.sha; } }catch(e){} const contentB64=btoa(unescape(encodeURIComponent(buildHtml()))); const body={message:`Update ${slug} v9.9`, content:contentB64, branch}; if(sha) body.sha=sha; const putRes=await fetch(apiBase,{method:'PUT', headers:{Authorization:`token ${token}`,'Content-Type':'application/json'}, body:JSON.stringify(body)}); if(!putRes.ok) throw new Error((await putRes.json()).message); status.className='status ok'; status.textContent='✅ 저장 성공! 1~2분 후 반영'; }catch(err){ status.className='status err'; status.textContent='❌ '+err.message; } }
+async function saveToGithub(){ const owner=$('ghOwner').value.trim(), repo=$('ghRepo').value.trim(), token=$('ghToken').value.trim(), branch=$('ghBranch').value.trim()||'main', slug=$('slug').value.trim(); const status=$('status'); if(!owner||!repo||!token){ status.className='status err'; status.textContent='Token 필요 - GitHub 설정 펼치기'; ghSection.classList.add('open'); isOpen=true; localStorage.setItem('gh_collapsed_v101','open'); apply(); return; } saveLocal(); status.className='status info'; status.textContent='⏳ 저장 중...'; try{ const path=`blog/${slug}/index.html`; const apiBase=`https://api.github.com/repos/${owner}/${repo}/contents/${path}`; let sha=null; try{ const getRes=await fetch(`${apiBase}?ref=${branch}`,{headers:{Authorization:`token ${token}`}}); if(getRes.ok){ const j=await getRes.json(); sha=j.sha; } }catch(e){} const contentB64=btoa(unescape(encodeURIComponent(buildHtml()))); const body={message:`Update ${slug} v10.1`, content:contentB64, branch}; if(sha) body.sha=sha; const putRes=await fetch(apiBase,{method:'PUT', headers:{Authorization:`token ${token}`,'Content-Type':'application/json'}, body:JSON.stringify(body)}); if(!putRes.ok) throw new Error((await putRes.json()).message); status.className='status ok'; status.textContent='✅ 저장 성공!'; }catch(err){ status.className='status err'; status.textContent='❌ '+err.message; } }
 $('saveGh').addEventListener('click',saveToGithub);
 </script>
 </body>
