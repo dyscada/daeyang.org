@@ -7,11 +7,14 @@
 body{margin:0;background:#fff;color:#18181b;font-family:Inter,system-ui,sans-serif}
 header{height:56px;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;padding:0 20px;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:10}
 .wrap{max-width:720px;margin:0 auto;padding:40px 20px}
-h1{font-size:36px;margin:0 0 24px}
+h1{font-size:36px;margin:0 0 8px}
+.sub{font-size:13px;color:#888;margin-bottom:24px}
 .grid{display:grid;gap:12px}
-.card{border:1px solid #e5e5e5;border-radius:16px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;transition:.15s;background:#fff}
+.card{border:1px solid #e5e5e5;border-radius:16px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;transition:.15s;background:#fff;text-decoration:none;color:inherit}
 .card:hover{border-color:#111;transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.06)}
-a.card-link{text-decoration:none;color:inherit}
+.card.featured{border-color:#111;background:#111;color:#fff}
+.card.featured p{color:#a1a1aa !important}
+.badge{font-size:10px;padding:3px 8px;border-radius:999px;background:#2563eb;color:#fff;font-weight:700;letter-spacing:.05em;margin-left:8px}
 .loading{padding:40px;text-align:center;color:#71717a}
 </style>
 </head>
@@ -19,6 +22,7 @@ a.card-link{text-decoration:none;color:inherit}
 <header><a href="/" style="font-weight:700;font-size:13px;letter-spacing:.08em;text-decoration:none;color:#111">DAEYANG.ORG</a><a href="/write/" style="background:#111;color:#fff;padding:8px 14px;border-radius:999px;font-size:12px;text-decoration:none">✏️ 새 글</a></header>
 <main class="wrap">
 <h1>Blog</h1>
+<div class="sub">빌딩 체크리스트가 맨 앞에 고정됩니다</div>
 <div id="grid" class="grid"><div class="loading">⏳ 불러오는 중...</div></div>
 </main>
 <script>
@@ -26,26 +30,66 @@ a.card-link{text-decoration:none;color:inherit}
   const owner='dyscada';
   const repo='daeyang.org';
   const branch='main';
-  const token=localStorage.getItem('writer92_ghToken')||localStorage.getItem('writer91_ghToken')||localStorage.getItem('writer9_ghToken')||'';
+  const token=localStorage.getItem('writer92_ghToken')||'';
   const grid=document.getElementById('grid');
+  
+  // 맨 앞으로 고정할 순서 - building-checklist가 제일 앞
+  const PINNED_ORDER = ['building-checklist', 'building', 'checklist'];
+  
   try{
     const headers={Accept:'application/vnd.github.v3+json'};
     if(token) headers.Authorization=`token ${token}`;
     const res=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/blog?ref=${branch}`, {headers});
     if(!res.ok) throw new Error(res.status);
     const items=await res.json();
-    const folders=items.filter(i=>i.type==='dir').map(i=>i.name).sort();
+    let folders=items.filter(i=>i.type==='dir').map(i=>i.name);
+    
+    // 정렬: PINNED_ORDER에 있는 것 먼저, 그 다음 나머지 알파벳 순
+    folders.sort((a,b)=>{
+      const aPinned = PINNED_ORDER.indexOf(a);
+      const bPinned = PINNED_ORDER.indexOf(b);
+      const aIsPinned = aPinned !== -1;
+      const bIsPinned = bPinned !== -1;
+      
+      if(aIsPinned && bIsPinned) return aPinned - bPinned;
+      if(aIsPinned) return -1;
+      if(bIsPinned) return 1;
+      
+      // building이 포함된 폴더는 앞으로
+      const aHasBuilding = a.toLowerCase().includes('building') || a.toLowerCase().includes('checklist');
+      const bHasBuilding = b.toLowerCase().includes('building') || b.toLowerCase().includes('checklist');
+      if(aHasBuilding && !bHasBuilding) return -1;
+      if(!aHasBuilding && bHasBuilding) return 1;
+      
+      return a.localeCompare(b);
+    });
+    
     localStorage.setItem('blog_list_backup', JSON.stringify(folders));
-    grid.innerHTML=folders.map(name=>{
-      const emojiMap={billiards:'🎱',swimming:'🏊',travel:'✈️',food:'🍜',daily:'📝',dev:'💻'};
-      const emoji=emojiMap[name]||'📄';
-      const titleMap={billiards:'3 쿠션',swimming:'수영'};
+    
+    grid.innerHTML=folders.map((name, idx)=>{
+      const isPinned = idx===0 && (name.toLowerCase().includes('building') || PINNED_ORDER.includes(name));
+      const emojiMap={billiards:'🎱',swimming:'🏊',travel:'✈️',food:'🍜',daily:'📝',dev:'💻','building-checklist':'🏢','building':'🏢',checklist:'✅'};
+      const emoji=emojiMap[name]|| (isPinned?'🏢':'📄');
+      const titleMap={billiards:'3 쿠션',swimming:'수영','building-checklist':'빌딩 체크리스트','building':'빌딩 체크리스트',checklist:'빌딩 체크리스트'};
       const title=titleMap[name]||name;
-      return `<a class="card-link" href="/blog/${name}/"><div class="card"><div><h3>${emoji} ${title}</h3><p>blog/${name}/</p></div><span>→</span></div></a>`;
+      const badge = isPinned ? '<span class="badge">PINNED</span>' : '';
+      return `<a class="card ${isPinned?'featured':''}" href="/blog/${name}/"><div><h3 style="margin:0 0 4px;display:flex;align-items:center">${emoji} ${title} ${badge}</h3><p style="margin:0;font-size:12px;color:#888">blog/${name}/</p></div><span>${isPinned?'📌':'→'}</span></a>`;
     }).join('');
   }catch(e){
-    const backup=JSON.parse(localStorage.getItem('blog_list_backup')||'["billiards","swimming"]');
-    grid.innerHTML=backup.map(name=>`<a class="card-link" href="/blog/${name}/"><div class="card"><div><h3>📄 ${name}</h3><p>blog/${name}/</p></div><span>→</span></div></a>`).join('');
+    console.error(e);
+    const backup=JSON.parse(localStorage.getItem('blog_list_backup')||'["building-checklist","billiards","swimming"]');
+    // backup도 같은 정렬 적용
+    backup.sort((a,b)=>{
+      const aIsBuilding = a.includes('building')||a.includes('checklist');
+      const bIsBuilding = b.includes('building')||b.includes('checklist');
+      if(aIsBuilding && !bIsBuilding) return -1;
+      if(!aIsBuilding && bIsBuilding) return 1;
+      return 0;
+    });
+    grid.innerHTML=backup.map((name,idx)=>{
+      const isPinned = idx===0;
+      return `<a class="card ${isPinned?'featured':''}" href="/blog/${name}/"><div><h3>📄 ${name} ${isPinned?'<span class="badge">PINNED</span>':''}</h3><p>blog/${name}/</p></div><span>${isPinned?'📌':'→'}</span></a>`;
+    }).join('');
   }
 })();
 </script>
