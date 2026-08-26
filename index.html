@@ -1,44 +1,32 @@
 <!DOCTYPE html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DAEYANG.ORG - Since 1988</title>
-<meta name="description" content="Daeyang Building and Electronics - Since 1988">
-<link rel="canonical" href="https://www.daeyang.org/">
+<meta name="description" content="Since 1988 - Daeyang Building and Electronics">
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;background:#fbfaf8;color:#111;line-height:1.6;-webkit-font-smoothing:antialiased}
-header{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#fbfaf8;border-bottom:1px solid #e7e5e0;position:sticky;top:0;z-index:10}
-header a{color:#111;text-decoration:none;font-size:13px;letter-spacing:.02em;font-weight:600}
-.wrap{max-width:720px;margin:0 auto;position:relative}
-.hero{padding:88px 24px 40px;position:relative;overflow:hidden}
-.meta{font-size:11px;letter-spacing:.18em;color:#9a958e;text-transform:uppercase;margin-bottom:28px}
-.title{font-family:'Times New Roman',Georgia,serif;font-size:64px;letter-spacing:-.04em;line-height:.88;margin:0;font-weight:400}
-.divider{width:40px;height:1px;background:#111;margin:32px 0}
-.lead{font-size:13px;color:#6b6760;max-width:320px;line-height:1.7}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#e7e5e0;border:1px solid #e7e5e0;margin:0 24px}
-.cell{background:#fff;padding:26px 22px;text-decoration:none;color:#111;display:block;transition:all .2s}
-.cell:hover{background:#f6f5f3}
-.num{font-size:11px;letter-spacing:.12em;color:#9a958e;font-weight:500}
-.cell-title{font-size:15px;font-weight:600;margin-top:12px;letter-spacing:-.01em;line-height:1.3}
-.cell-desc{font-size:12px;color:#8a8680;margin-top:6px;line-height:1.5}
-.footer{padding:40px 24px 32px;font-size:11px;color:#9a958e;letter-spacing:.02em;display:flex;justify-content:space-between}
-.footer a{color:#9a958e;text-decoration:none}
-.footer a:hover{color:#111}
-@media(max-width:600px){.title{font-size:48px}.grid{margin:0 16px;grid-template-columns:1fr}.hero{padding:56px 20px 32px}}
-</style>
-<style>/* bg */ .hero{position:relative;background-image:url('/images/landing-bg-1787727750571.jpg');background-size:cover;background-position:center} .hero::before{content:'';position:absolute;inset:0;background:rgba(251,250,248,.86);z-index:0} .hero>div{position:relative;z-index:1}</style></head><body>
-<header><a href="/">DAEYANG.ORG</a><span style="font-size:11px;letter-spacing:.12em;color:#9a958e">EST. 1988</span></header>
-<div class="wrap">
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:#111;color:#fff;-webkit-font-smoothing:antialiased}
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:space-between;padding:28px 28px 36px;background-size:cover;background-position:center;background-image:url('/images/landing-bg-1787727750571.jpg')}
+.hero::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,.55) 100%);z-index:0}
+.top,.bottom{position:relative;z-index:1}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:.18em;opacity:.9}
+.top a{color:#fff;text-decoration:none}
+.big{font-family:Georgia,serif;font-size:72px;letter-spacing:-.04em;line-height:.9;margin-top:24px;font-weight:400}
+.sub{margin-top:16px;font-size:13px;opacity:.8;line-height:1.6;max-width:300px}
+.pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:40px}
+.pills a{padding:12px 20px;border:1px solid rgba(255,255,255,.35);border-radius:999px;color:#fff;text-decoration:none;font-size:13px;letter-spacing:-.01em;backdrop-filter:blur(16px);background:rgba(255,255,255,.08);transition:all .2s}
+.pills a:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.6);transform:translateY(-1px)}
+.foot{margin-top:56px;display:flex;justify-content:space-between;font-size:11px;opacity:.5;letter-spacing:.02em}
+@media(max-width:600px){.hero{padding:20px 20px 28px;min-height:90vh}.big{font-size:52px}.pills a{padding:10px 16px;font-size:12px}}
+</style></head><body>
 <div class="hero">
-<div class="meta">Daeyang Building · Electronics · Seoul</div>
-<div class="title">Since<br>1988</div>
-<div class="divider"></div>
-<div class="lead">30년 이상 이어온 전자 시스템과 건축물 관리의 기록. 대양빌딩과 대양전자를 운영하며 쌓아온 시간을 정리합니다.</div>
+<div class="top"><a href="/">DAEYANG.ORG</a><span>EST. 1988 — SEOUL</span></div>
+<div class="bottom">
+<div style="font-size:11px;letter-spacing:.22em;opacity:.7">SINCE 1988</div>
+<div class="big">Daeyang<br>Building</div>
+<div class="sub">30년 이상 이어온 전자 시스템과 건축물 관리의 기록</div>
+<div class="pills">
+<a href="/blog/dyscada/">dyscada</a><a href="/blog/building-checklist/">Building Checklist</a><a href="/about/">About Us</a><a href="/blog/">Blog</a>
 </div>
-<div class="grid">
-<a href="/blog/dyscada/" class="cell"><div class="num">01</div><div class="cell-title">dyscada</div><div class="cell-desc">SCADA · System Archive<br>가스·철도 시스템 개발 기록</div></a>
-<a href="/blog/building-checklist/" class="cell"><div class="num">02</div><div class="cell-title">Building Checklist</div><div class="cell-desc">Maintenance & Operation<br>빌딩 관리 체크리스트</div></a>
-<a href="/about/" class="cell"><div class="num">03</div><div class="cell-title">About Us</div><div class="cell-desc">History & People<br>회사와 사람들의 이야기</div></a>
-<a href="/blog/" class="cell"><div class="num">04</div><div class="cell-title">Blog</div><div class="cell-desc">Notes & Records<br>다른 기록들</div></a>
+<div class="foot"><span>© 1988—2026 DAEYANG.ORG</span><span>Seoul, Korea</span></div>
 </div>
-<div class="footer"><span>© 1988—2026 DAEYANG.ORG · Seoul, Korea</span><span><a href="/blog/">Blog</a> · <a href="/about/">About</a></span></div>
 </div>
 </body></html>
