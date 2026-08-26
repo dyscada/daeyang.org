@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DAEYANG Writer v9.4 - 내용 불러오기</title>
+<title>DAEYANG Writer v9.5 - 자동 링크 수정</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#fafafa;font-family:Inter,sans-serif}
 header{height:56px;background:#fff;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;padding:0 20px;justify-content:space-between;position:sticky;top:0;z-index:10}
@@ -16,8 +16,8 @@ textarea{height:420px;line-height:1.6}
 .btn.black{background:#111;color:#fff;border-color:#111}
 .btn.blue{background:#2563eb;color:#fff !important;border-color:#2563eb !important}
 #preview{border:1px solid #e5e5e5;background:#fff;border-radius:12px;padding:24px;line-height:1.8}
-#preview a{color:#2563eb !important;text-decoration:underline !important}
-#preview .video{margin:20px 0 6px;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000}
+#preview a{color:#2563eb !important;text-decoration:underline !important;cursor:pointer !important;font-weight:500}
+#preview .video{margin:12px 0 20px;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000}
 #preview .video iframe{width:100%;height:100%;border:0}
 .github-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;cursor:pointer;margin-top:20px;font-size:13px;font-weight:600}
 .github-box{background:#f8fafc;border:1px solid #e2e8f0;border-top:0;border-radius:0 0 12px 12px;padding:16px;display:none}
@@ -29,28 +29,24 @@ textarea{height:420px;line-height:1.6}
 </style>
 </head>
 <body>
-<header><b>DAEYANG WRITER v9.4</b><span id="editInfo" style="font-size:12px;color:#71717a">새 글</span></header>
+<header><b>DAEYANG WRITER v9.5</b><span id="editInfo" style="font-size:12px;color:#71717a">자동 링크 지원</span></header>
 <div class="wrap">
 <div class="left">
-<label>slug (폴더명)</label><input id="slug" placeholder="예: billiards">
-<label>제목</label><input id="title" placeholder="제목">
+<label>slug</label><input id="slug" value="billiards">
+<label>제목</label><input id="title" value="3 쿠션">
 <label>날짜</label><input id="date" type="date">
-<label>내용 (마크다운)</label>
-<textarea id="body" placeholder="내용을 입력하세요...
-유튜브는 링크만 붙여넣으면 자동 임베드
-링크: https://youtube.com/watch?v=... 형식 지원"></textarea>
-
-<button class="github-toggle" id="ghToggle"><span>🔑 GitHub 설정 (dyscada/daeyang.org)</span><span id="toggleIcon">▶</span></button>
+<label>내용</label>
+<textarea id="body">뒤돌리기
+45도의 끝 https://www.youtube.com/watch?v=SROZvzcYSgg
+링크: https://www.youtube.com/watch?v=SROZvzcYSgg
+https://www.youtube.com/watch?v=SROZvzcYSgg</textarea>
+<button class="github-toggle" id="ghToggle"><span>🔑 GitHub (dyscada/daeyang.org)</span><span id="toggleIcon">▶</span></button>
 <div class="github-box" id="ghBox">
-<label style="margin-top:0">Owner</label><input id="ghOwner" value="dyscada">
-<label>Repo</label><input id="ghRepo" value="daeyang.org">
-<label>Branch</label><input id="ghBranch" value="main">
-<label>Token</label><input id="ghToken" type="password" placeholder="ghp_...">
+<input id="ghOwner" value="dyscada"><input id="ghRepo" value="daeyang.org" style="margin-top:6px"><input id="ghBranch" value="main" style="margin-top:6px"><input id="ghToken" type="password" placeholder="ghp_..." style="margin-top:6px">
 </div>
-
 <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
 <button class="btn blue" id="saveGh" style="grid-column:1/-1">🚀 GitHub에 저장</button>
-<button class="btn black" id="dl">💾 HTML 다운로드</button>
+<button class="btn black" id="dl">💾 다운로드</button>
 <button class="btn" id="copyBtn">📋 복사</button>
 </div>
 <div id="status" class="status"></div>
@@ -61,24 +57,55 @@ textarea{height:420px;line-height:1.6}
 const $=id=>document.getElementById(id);
 $('date').valueAsDate=new Date();
 ['ghOwner','ghRepo','ghBranch','ghToken'].forEach(k=>{ const v=localStorage.getItem('writer92_'+k); if(v) $(k).value=v; });
-if(!$('ghOwner').value) $('ghOwner').value='dyscada';
-if(!$('ghRepo').value) $('ghRepo').value='daeyang.org';
 function saveLocal(){ ['ghOwner','ghRepo','ghBranch','ghToken'].forEach(k=>localStorage.setItem('writer92_'+k, $(k).value)); }
 document.querySelectorAll('#ghBox input').forEach(el=>el.addEventListener('input',saveLocal));
-$('ghToggle').addEventListener('click',()=>{ const box=$('ghBox'); const isOpen=box.classList.toggle('open'); $('toggleIcon').textContent=isOpen?'▼':'▶'; });
+$('ghToggle').addEventListener('click',()=>{ const b=$('ghBox'); const o=b.classList.toggle('open'); $('toggleIcon').textContent=o?'▼':'▶'; });
 
 function ytId(s){try{const u=new URL(s.trim()); if(u.hostname.includes('youtu.be')) return u.pathname.slice(1).split('?')[0]; if(u.searchParams.get('v')) return u.searchParams.get('v'); const m=s.match(/embed\/([^?&]+)/); if(m) return m[1];}catch(e){} return null;}
-function mdToHtml(md){ return md.split('\n').map(line=>{ const t=line.trim(); if(!t) return ''; if(t.startsWith('## ')) return `<h2>${t.slice(3)}</h2>`; const m=t.match(/^링크\s*:\s*(https?:\/\/.+)$/i); if(m) return `<p><a href="${m[1].trim()}" target="_blank">${m[1].trim()}</a></p>`; const yid=ytId(t); if(yid && /^https?:\/\/.+youtu/.test(t) && !t.toLowerCase().startsWith('링크')) return `<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/${yid}" allowfullscreen loading="lazy"></iframe></div>`; if(t.startsWith('http')) return `<p><a href="${t}" target="_blank">${t}</a></p>`; return `<p>${line}</p>`; }).join('\n'); }
+function extractYtIds(text){ const re=/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/g; return [...text.matchAll(re)].map(m=>m[1]); }
 
-// v9.4 핵심: 원본 마크다운을 HTML 안에 숨겨서 저장 - 다음 편집 때 그대로 복원
+// v9.5 핵심 수정: 문장 안에 링크가 있어도 파란색으로 변환 + 유튜브 자동 임베드
+function mdToHtml(md){
+  return md.split('\n').map(line=>{
+    const t=line.trim();
+    if(!t) return '';
+    if(t.startsWith('## ')) return `<h2>${t.slice(3)}</h2>`;
+    
+    // 1. 유튜브 ID 추출
+    const yIds=extractYtIds(line);
+    
+    // 2. 링크를 파란색 <a>로 변환 (문장 안에 있어도)
+    let linked = line
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      // 이미 변환된 것 방지 위해 먼저 URL을 링크로
+      .replace(/(https?:\/\/[^\s]+)/g, (url)=>{
+        // 끝에 붙은 구두점 제거
+        const cleanUrl=url.replace(/[.,!?)]+$/,'');
+        const trail=url.slice(cleanUrl.length);
+        return `<a href="${cleanUrl}" target="_blank" rel="noopener">${cleanUrl}</a>${trail}`;
+      });
+    
+    // 3. 링크: 형식도 지원
+    linked = linked.replace(/링크\s*:\s*<a href="([^"]+)"[^>]*>([^<]+)<\/a>/i, (m,href)=>`<a href="${href}" target="_blank">${href}</a>`);
+    
+    let html=`<p>${linked}</p>`;
+    
+    // 4. 유튜브가 포함된 줄이면 영상도 바로 아래에 추가
+    if(yIds.length>0){
+      yIds.forEach(yid=>{
+        html+=`<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/${yid}" allowfullscreen loading="lazy" title="YouTube"></iframe></div>`;
+      });
+    }
+    return html;
+  }).join('\n');
+}
+
 function buildHtml(){
-  const title=$('title').value||'제목';
-  const slug=$('slug').value||'post';
-  const rawMd=$('body').value;
+  const title=$('title').value||'제목'; const slug=$('slug').value||'post'; const rawMd=$('body').value;
   const content=mdToHtml(rawMd);
-  const encodedMd=btoa(unescape(encodeURIComponent(rawMd))); // base64로 안전하게 보관
+  const encodedMd=btoa(unescape(encodeURIComponent(rawMd)));
   return `<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title} — DAEYANG.ORG</title>
-<style>body{margin:0;background:#fff;color:#18181b;font-family:Inter,sans-serif;line-height:1.8}header{height:56px;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;background:#fff} .wrap{max-width:680px;margin:0 auto;padding:40px 20px 120px} article a{color:#2563eb !important;text-decoration:underline !important} .video{margin:20px 0 8px;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000} .video iframe{width:100%;height:100%;border:0} .edit-fab{position:fixed;bottom:20px;right:20px;background:#111;color:#fff !important;padding:14px 20px;border-radius:999px;font-size:14px;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.25);text-decoration:none !important}</style>
+<style>body{margin:0;background:#fff;color:#18181b;font-family:Inter,sans-serif;line-height:1.8}header{height:56px;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;background:#fff} .wrap{max-width:680px;margin:0 auto;padding:40px 20px 120px} a{color:#2563eb !important;text-decoration:underline !important;cursor:pointer !important} a:hover{color:#1d4ed8 !important} .video{margin:12px 0 24px;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000} .video iframe{width:100%;height:100%;border:0} .edit-fab{position:fixed;bottom:20px;right:20px;background:#111;color:#fff !important;padding:14px 20px;border-radius:999px;font-size:14px;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.25);text-decoration:none !important}</style>
 </head><body><header><a href="/" style="font-weight:700;font-size:13px;letter-spacing:.08em;text-decoration:none;color:#111">DAEYANG.ORG</a><a href="/write/?edit=${slug}" style="background:#111;color:#fff;padding:8px 14px;border-radius:999px;font-size:12px;text-decoration:none">✏️ 에디터로 이동</a></header>
 <main class="wrap"><div style="font-size:13px;color:#888;margin-bottom:16px">blog/${slug}/</div><h1>${title}</h1><article>${content}</article></main>
 <a class="edit-fab" href="/write/?edit=${slug}">✏️ 에디터로 이동</a>
@@ -88,74 +115,24 @@ function buildHtml(){
 function render(){ $('preview').innerHTML=`<h1>${$('title').value||'미리보기'}</h1><div>${mdToHtml($('body').value)}</div>`; }
 $('title').addEventListener('input',render); $('body').addEventListener('input',render);
 
-// v9.4 핵심: ?edit=slug 로 들어오면 기존 글 불러오기
+// edit 불러오기
 async function loadExisting(){
-  const params=new URLSearchParams(location.search);
-  const editSlug=params.get('edit');
-  if(!editSlug) return;
-  $('slug').value=editSlug;
-  $('editInfo').textContent=`편집 중: ${editSlug}`;
-  $('editInfo').style.color='#2563eb';
-  const status=$('status'); status.className='status info'; status.textContent=`⏳ ${editSlug} 글 불러오는 중...`;
+  const params=new URLSearchParams(location.search); const editSlug=params.get('edit'); if(!editSlug) { render(); return; }
+  $('slug').value=editSlug; $('editInfo').textContent=`편집 중: ${editSlug}`;
   try{
-    // 1차: 현재 도메인에서 직접 fetch
-    let html='';
-    try{
-      const res=await fetch(`/blog/${editSlug}/`, {cache:'no-store'});
-      if(res.ok) html=await res.text();
-    }catch(e){}
-    // 2차: GitHub API로 fetch (토큰 있으면)
-    if(!html){
-      const owner=$('ghOwner').value||'dyscada', repo=$('ghRepo').value||'daeyang.org', branch=$('ghBranch').value||'main', token=$('ghToken').value||'';
-      const headers={Accept:'application/vnd.github.v3+json'}; if(token) headers.Authorization=`token ${token}`;
-      const apiRes=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/blog/${editSlug}/index.html?ref=${branch}`, {headers});
-      if(apiRes.ok){
-        const j=await apiRes.json();
-        html=decodeURIComponent(escape(atob(j.content)));
-      }
-    }
-    if(!html) throw new Error('글을 찾을 수 없습니다');
-    
-    // 제목 추출
-    const titleMatch=html.match(/<h1[^>]*>(.*?)<\/h1>/i);
-    if(titleMatch) $('title').value=titleMatch[1].replace(/<[^>]+>/g,'').trim();
-    
-    // 원본 마크다운 추출 (v9.4부터 저장된 경우)
+    let html=''; try{ const res=await fetch(`/blog/${editSlug}/`,{cache:'no-store'}); if(res.ok) html=await res.text(); }catch(e){}
+    if(!html){ const owner=$('ghOwner').value||'dyscada', repo=$('ghRepo').value||'daeyang.org', branch='main', token=$('ghToken').value||''; const h={Accept:'application/vnd.github.v3+json'}; if(token) h.Authorization=`token ${token}`; const apiRes=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/blog/${editSlug}/index.html?ref=${branch}`,{headers:h}); if(apiRes.ok){ const j=await apiRes.json(); html=decodeURIComponent(escape(atob(j.content))); } }
+    if(!html) throw new Error('없음');
+    const titleMatch=html.match(/<h1[^>]*>(.*?)<\/h1>/i); if(titleMatch) $('title').value=titleMatch[1].replace(/<[^>]+>/g,'').trim();
     const mdMatch=html.match(/<script[^>]*id="source-md"[^>]*>(.*?)<\/script>/s);
-    if(mdMatch && mdMatch[1].trim()){
-      try{
-        const decoded=decodeURIComponent(escape(atob(mdMatch[1].trim())));
-        $('body').value=decoded;
-        status.className='status ok'; status.textContent=`✅ ${editSlug} 원본을 불러왔습니다 (v9.4)`;
-      }catch(e){
-        // base64 디코딩 실패시 그냥 내용으로
-        $('body').value=mdMatch[1];
-        status.className='status ok'; status.textContent=`✅ 불러옴 (디코딩 fallback)`;
-      }
-    } else {
-      // 구버전: article 내용에서 역추정
-      const articleMatch=html.match(/<article[^>]*>([\s\S]*?)<\/article>/i);
-      if(articleMatch){
-        let article=articleMatch[1];
-        // 간단히 텍스트로 변환
-        article=article.replace(/<div class="video">[\s\S]*?youtube\.com\/embed\/([^"?]+)[\s\S]*?<\/div>/g, (m,yid)=>`https://www.youtube.com/watch?v=${yid}`);
-        article=article.replace(/<[^>]+>/g, '\n').replace(/\n+/g,'\n').trim();
-        $('body').value=article;
-        status.className='status ok'; status.textContent=`✅ 구버전 글을 불러왔습니다. 저장하면 다음부터는 원본 그대로 보존됩니다`;
-      } else {
-        throw new Error('본문을 찾을 수 없습니다');
-      }
-    }
-    render();
-  }catch(err){
-    status.className='status err'; status.textContent=`❌ 불러오기 실패: ${err.message}. 새 글로 작성됩니다`;
-  }
+    if(mdMatch && mdMatch[1].trim()){ try{ $('body').value=decodeURIComponent(escape(atob(mdMatch[1].trim()))); }catch(e){ $('body').value=mdMatch[1]; } }
+    else { const am=html.match(/<article[^>]*>([\s\S]*?)<\/article>/i); if(am){ let art=am[1]; art=art.replace(/<div class="video">[\s\S]*?embed\/([^"?]+)[\s\S]*?<\/div>/g,(m,yid)=>`https://www.youtube.com/watch?v=${yid}`); art=art.replace(/<[^>]+>/g,'\n').replace(/\n+/g,'\n').trim(); $('body').value=art; } }
+  }catch(e){} render();
 }
 loadExisting();
-
 $('dl').addEventListener('click',()=>{ const b=new Blob([buildHtml()],{type:'text/html'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='index.html'; a.click(); });
-$('copyBtn').addEventListener('click',()=>{ navigator.clipboard.writeText(buildHtml()); const s=$('status'); s.className='status ok'; s.textContent='복사됨'; });
-async function saveToGithub(){ const owner=$('ghOwner').value.trim(), repo=$('ghRepo').value.trim(), token=$('ghToken').value.trim(), branch=$('ghBranch').value.trim()||'main', slug=$('slug').value.trim(); const status=$('status'); if(!owner||!repo||!token){ status.className='status err'; status.textContent='Owner/Repo/Token 입력 필요 - 설정 열어서 입력'; $('ghBox').classList.add('open'); return; } saveLocal(); status.className='status info'; status.textContent='⏳ 저장 중...'; try{ const path=`blog/${slug}/index.html`; const apiBase=`https://api.github.com/repos/${owner}/${repo}/contents/${path}`; let sha=null; try{ const getRes=await fetch(`${apiBase}?ref=${branch}`,{headers:{Authorization:`token ${token}`}}); if(getRes.ok){ const j=await getRes.json(); sha=j.sha; } }catch(e){} const contentB64=btoa(unescape(encodeURIComponent(buildHtml()))); const body={message:`Update ${slug} via v9.4`, content:contentB64, branch}; if(sha) body.sha=sha; const putRes=await fetch(apiBase,{method:'PUT', headers:{Authorization:`token ${token}`,'Content-Type':'application/json'}, body:JSON.stringify(body)}); const putJson=await putRes.json(); if(!putRes.ok) throw new Error(putJson.message); status.className='status ok'; status.innerHTML=`✅ 저장 성공! 1~2분 후 반영<br><a href="https://${owner}.github.io/blog/${slug}/" target="_blank" style="color:#15803d">사이트 보기</a>`; }catch(err){ status.className='status err'; status.textContent='❌ '+err.message; } }
+$('copyBtn').addEventListener('click',()=>{ navigator.clipboard.writeText(buildHtml()); $('status').className='status ok'; $('status').textContent='복사됨'; });
+async function saveToGithub(){ const owner=$('ghOwner').value.trim(), repo=$('ghRepo').value.trim(), token=$('ghToken').value.trim(), branch=$('ghBranch').value.trim()||'main', slug=$('slug').value.trim(); const status=$('status'); if(!owner||!repo||!token){ status.className='status err'; status.textContent='Token 필요'; return; } saveLocal(); status.className='status info'; status.textContent='⏳ 저장 중...'; try{ const path=`blog/${slug}/index.html`; const apiBase=`https://api.github.com/repos/${owner}/${repo}/contents/${path}`; let sha=null; try{ const getRes=await fetch(`${apiBase}?ref=${branch}`,{headers:{Authorization:`token ${token}`}}); if(getRes.ok){ const j=await getRes.json(); sha=j.sha; } }catch(e){} const contentB64=btoa(unescape(encodeURIComponent(buildHtml()))); const body={message:`Update ${slug} v9.5 auto-link`, content:contentB64, branch}; if(sha) body.sha=sha; const putRes=await fetch(apiBase,{method:'PUT', headers:{Authorization:`token ${token}`,'Content-Type':'application/json'}, body:JSON.stringify(body)}); const putJson=await putRes.json(); if(!putRes.ok) throw new Error(putJson.message); status.className='status ok'; status.innerHTML=`✅ 저장 성공!`; }catch(err){ status.className='status err'; status.textContent='❌ '+err.message; } }
 $('saveGh').addEventListener('click',saveToGithub);
 </script>
 </body>
