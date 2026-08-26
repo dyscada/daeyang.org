@@ -15,6 +15,7 @@ h1{font-size:36px;margin:0 0 8px}
 .card.featured{border-color:#111;background:#111;color:#fff}
 .card.featured p{color:#a1a1aa !important}
 .badge{font-size:10px;padding:3px 8px;border-radius:999px;background:#2563eb;color:#fff;font-weight:700;letter-spacing:.05em;margin-left:8px}
+.badge.gold{background:#f59e0b}
 .loading{padding:40px;text-align:center;color:#71717a}
 </style>
 </head>
@@ -22,7 +23,7 @@ h1{font-size:36px;margin:0 0 8px}
 <header><a href="/" style="font-weight:700;font-size:13px;letter-spacing:.08em;text-decoration:none;color:#111">DAEYANG.ORG</a><a href="/write/" style="background:#111;color:#fff;padding:8px 14px;border-radius:999px;font-size:12px;text-decoration:none">✏️ 새 글</a></header>
 <main class="wrap">
 <h1>Blog</h1>
-<div class="sub">빌딩 체크리스트가 맨 앞에 고정됩니다</div>
+<div class="sub">dyscada가 맨 앞에 고정됩니다 (ctc-wired + scada-20years 통합)</div>
 <div id="grid" class="grid"><div class="loading">⏳ 불러오는 중...</div></div>
 </main>
 <script>
@@ -33,8 +34,8 @@ h1{font-size:36px;margin:0 0 8px}
   const token=localStorage.getItem('writer92_ghToken')||'';
   const grid=document.getElementById('grid');
   
-  // 맨 앞으로 고정할 순서 - building-checklist가 제일 앞
-  const PINNED_ORDER = ['building-checklist', 'building', 'checklist'];
+  // dyscada를 맨 앞으로 고정
+  const PINNED_ORDER = ['dyscada', 'building-checklist', 'building', 'checklist'];
   
   try{
     const headers={Accept:'application/vnd.github.v3+json'};
@@ -44,51 +45,38 @@ h1{font-size:36px;margin:0 0 8px}
     const items=await res.json();
     let folders=items.filter(i=>i.type==='dir').map(i=>i.name);
     
-    // 정렬: PINNED_ORDER에 있는 것 먼저, 그 다음 나머지 알파벳 순
+    // ctc-wired와 scada-20years는 dyscada로 합쳐졌으므로 목록에서 제외 (혹시 남아있으면 숨김)
+    folders = folders.filter(name => name !== 'ctc-wired' && name !== 'scada-20years');
+    
     folders.sort((a,b)=>{
       const aPinned = PINNED_ORDER.indexOf(a);
       const bPinned = PINNED_ORDER.indexOf(b);
       const aIsPinned = aPinned !== -1;
       const bIsPinned = bPinned !== -1;
-      
       if(aIsPinned && bIsPinned) return aPinned - bPinned;
       if(aIsPinned) return -1;
       if(bIsPinned) return 1;
-      
-      // building이 포함된 폴더는 앞으로
-      const aHasBuilding = a.toLowerCase().includes('building') || a.toLowerCase().includes('checklist');
-      const bHasBuilding = b.toLowerCase().includes('building') || b.toLowerCase().includes('checklist');
-      if(aHasBuilding && !bHasBuilding) return -1;
-      if(!aHasBuilding && bHasBuilding) return 1;
-      
       return a.localeCompare(b);
     });
     
     localStorage.setItem('blog_list_backup', JSON.stringify(folders));
     
     grid.innerHTML=folders.map((name, idx)=>{
-      const isPinned = idx===0 && (name.toLowerCase().includes('building') || PINNED_ORDER.includes(name));
-      const emojiMap={billiards:'🎱',swimming:'🏊',travel:'✈️',food:'🍜',daily:'📝',dev:'💻','building-checklist':'🏢','building':'🏢',checklist:'✅'};
-      const emoji=emojiMap[name]|| (isPinned?'🏢':'📄');
-      const titleMap={billiards:'3 쿠션',swimming:'수영','building-checklist':'빌딩 체크리스트','building':'빌딩 체크리스트',checklist:'빌딩 체크리스트'};
+      const isFirst = name==='dyscada';
+      const emojiMap={dyscada:'⚡️',billiards:'🎱',swimming:'🏊',travel:'✈️',food:'🍜',daily:'📝',dev:'💻','building-checklist':'🏢',building:'🏢'};
+      const emoji=emojiMap[name]|| (isFirst?'⚡️':'📄');
+      const titleMap={dyscada:'DYSCADA',billiards:'3 쿠션',swimming:'수영','building-checklist':'빌딩 체크리스트'};
       const title=titleMap[name]||name;
-      const badge = isPinned ? '<span class="badge">PINNED</span>' : '';
-      return `<a class="card ${isPinned?'featured':''}" href="/blog/${name}/"><div><h3 style="margin:0 0 4px;display:flex;align-items:center">${emoji} ${title} ${badge}</h3><p style="margin:0;font-size:12px;color:#888">blog/${name}/</p></div><span>${isPinned?'📌':'→'}</span></a>`;
+      const badge = isFirst ? '<span class="badge gold">FIRST</span>' : (idx===1?'<span class="badge">PINNED</span>':'');
+      const desc = isFirst ? 'ctc-wired + scada-20years 통합' : `blog/${name}/`;
+      return `<a class="card ${isFirst?'featured':''}" href="/blog/${name}/"><div><h3 style="margin:0 0 4px;display:flex;align-items:center">${emoji} ${title} ${badge}</h3><p style="margin:0;font-size:12px;color:#888">${desc}</p></div><span>${isFirst?'📌':'→'}</span></a>`;
     }).join('');
   }catch(e){
     console.error(e);
-    const backup=JSON.parse(localStorage.getItem('blog_list_backup')||'["building-checklist","billiards","swimming"]');
-    // backup도 같은 정렬 적용
-    backup.sort((a,b)=>{
-      const aIsBuilding = a.includes('building')||a.includes('checklist');
-      const bIsBuilding = b.includes('building')||b.includes('checklist');
-      if(aIsBuilding && !bIsBuilding) return -1;
-      if(!aIsBuilding && bIsBuilding) return 1;
-      return 0;
-    });
+    const backup=JSON.parse(localStorage.getItem('blog_list_backup')||'["dyscada","billiards","swimming"]');
     grid.innerHTML=backup.map((name,idx)=>{
-      const isPinned = idx===0;
-      return `<a class="card ${isPinned?'featured':''}" href="/blog/${name}/"><div><h3>📄 ${name} ${isPinned?'<span class="badge">PINNED</span>':''}</h3><p>blog/${name}/</p></div><span>${isPinned?'📌':'→'}</span></a>`;
+      const isFirst = name==='dyscada';
+      return `<a class="card ${isFirst?'featured':''}" href="/blog/${name}/"><div><h3>📄 ${name} ${isFirst?'<span class="badge gold">FIRST</span>':''}</h3><p>blog/${name}/</p></div><span>${isFirst?'📌':'→'}</span></a>`;
     }).join('');
   }
 })();
