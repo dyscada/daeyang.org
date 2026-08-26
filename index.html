@@ -1,46 +1,44 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DAEYANG.ORG - Since 1988</title>
 <meta name="description" content="Daeyang Building and Electronics - Since 1988">
 <link rel="canonical" href="https://www.daeyang.org/">
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:#fafafa;color:#111;line-height:1.7}
-header{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#fff;border-bottom:1px solid #e5e5e5;position:sticky;top:0;z-index:10}
-header a{color:#111;text-decoration:none;font-weight:700;letter-spacing:-.02em}
-.hero{max-width:680px;margin:0 auto;padding:64px 20px 24px;text-align:center}
-.hero h1{font-size:48px;letter-spacing:-.04em;margin:0 0 12px;line-height:1}
-.hero p{color:#666;font-size:14px;margin:0}
-.direct{max-width:680px;margin:0 auto;padding:24px 20px 48px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.btn{display:block;padding:18px 16px;border-radius:14px;text-align:center;text-decoration:none;font-weight:700;font-size:14px;transition:all .15s}
-.btn.primary{background:#111;color:#fff}
-.btn.primary:hover{background:#000;transform:translateY(-1px)}
-.btn.green{background:#16a34a;color:#fff}
-.btn.green:hover{background:#15803d;transform:translateY(-1px)}
-.btn.white{background:#fff;color:#111;border:1px solid #e5e5e5}
-.btn.white:hover{background:#f5f5f5;border-color:#d4d4d4;transform:translateY(-1px)}
-.footer{text-align:center;padding:40px 20px;font-size:12px;color:#999;border-top:1px solid #e5e5e5}
-/* landing bg start */
-body{position:relative;background-image:url('/images/landing-bg-1787727750571.jpg');background-size:cover;background-attachment:fixed;background-position:center}
-body::before{content:'';position:fixed;inset:0;background:rgba(255,255,255,0.35000000000000003);z-index:-1;pointer-events:none}
-.hero{position:relative;background:transparent}
-.wrap .card{background:rgba(255,255,255,.9);backdrop-filter:blur(8px)}
-/* landing bg end */
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;background:#fbfaf8;color:#111;line-height:1.6;-webkit-font-smoothing:antialiased}
+header{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#fbfaf8;border-bottom:1px solid #e7e5e0;position:sticky;top:0;z-index:10}
+header a{color:#111;text-decoration:none;font-size:13px;letter-spacing:.02em;font-weight:600}
+.wrap{max-width:720px;margin:0 auto;position:relative}
+.hero{padding:88px 24px 40px;position:relative;overflow:hidden}
+.meta{font-size:11px;letter-spacing:.18em;color:#9a958e;text-transform:uppercase;margin-bottom:28px}
+.title{font-family:'Times New Roman',Georgia,serif;font-size:64px;letter-spacing:-.04em;line-height:.88;margin:0;font-weight:400}
+.divider{width:40px;height:1px;background:#111;margin:32px 0}
+.lead{font-size:13px;color:#6b6760;max-width:320px;line-height:1.7}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#e7e5e0;border:1px solid #e7e5e0;margin:0 24px}
+.cell{background:#fff;padding:26px 22px;text-decoration:none;color:#111;display:block;transition:all .2s}
+.cell:hover{background:#f6f5f3}
+.num{font-size:11px;letter-spacing:.12em;color:#9a958e;font-weight:500}
+.cell-title{font-size:15px;font-weight:600;margin-top:12px;letter-spacing:-.01em;line-height:1.3}
+.cell-desc{font-size:12px;color:#8a8680;margin-top:6px;line-height:1.5}
+.footer{padding:40px 24px 32px;font-size:11px;color:#9a958e;letter-spacing:.02em;display:flex;justify-content:space-between}
+.footer a{color:#9a958e;text-decoration:none}
+.footer a:hover{color:#111}
+@media(max-width:600px){.title{font-size:48px}.grid{margin:0 16px;grid-template-columns:1fr}.hero{padding:56px 20px 32px}}
 </style>
-</head>
-<body>
-<header><a href="/">DAEYANG.ORG</a><a href="/blog/">Blog</a></header>
+<style>/* bg */ .hero{position:relative;background-image:url('/images/landing-bg-1787727750571.jpg');background-size:cover;background-position:center} .hero::before{content:'';position:absolute;inset:0;background:rgba(251,250,248,.86);z-index:0} .hero>div{position:relative;z-index:1}</style></head><body>
+<header><a href="/">DAEYANG.ORG</a><span style="font-size:11px;letter-spacing:.12em;color:#9a958e">EST. 1988</span></header>
+<div class="wrap">
 <div class="hero">
-<h1>Since 1988</h1>
-<p>Daeyang Electronics and Building · 30+ years</p>
+<div class="meta">Daeyang Building · Electronics · Seoul</div>
+<div class="title">Since<br>1988</div>
+<div class="divider"></div>
+<div class="lead">30년 이상 이어온 전자 시스템과 건축물 관리의 기록. 대양빌딩과 대양전자를 운영하며 쌓아온 시간을 정리합니다.</div>
 </div>
-<div class="direct">
-<a href="/blog/dyscada/" class="btn primary">👤 dyscada</a>
-<a href="/blog/building-checklist/" class="btn green">🏢 빌딩 체크리스트</a>
-<a href="/about/" class="btn white">ℹ️ About Us</a>
-<a href="/blog/" class="btn white">📚 Blog</a>
+<div class="grid">
+<a href="/blog/dyscada/" class="cell"><div class="num">01</div><div class="cell-title">dyscada</div><div class="cell-desc">SCADA · System Archive<br>가스·철도 시스템 개발 기록</div></a>
+<a href="/blog/building-checklist/" class="cell"><div class="num">02</div><div class="cell-title">Building Checklist</div><div class="cell-desc">Maintenance & Operation<br>빌딩 관리 체크리스트</div></a>
+<a href="/about/" class="cell"><div class="num">03</div><div class="cell-title">About Us</div><div class="cell-desc">History & People<br>회사와 사람들의 이야기</div></a>
+<a href="/blog/" class="cell"><div class="num">04</div><div class="cell-title">Blog</div><div class="cell-desc">Notes & Records<br>다른 기록들</div></a>
 </div>
-<div class="footer">2021 Chol and Ryueae - All rights reserved</div>
-</body>
-</html>
+<div class="footer"><span>© 1988—2026 DAEYANG.ORG · Seoul, Korea</span><span><a href="/blog/">Blog</a> · <a href="/about/">About</a></span></div>
+</div>
+</body></html>
