@@ -2,84 +2,58 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Blog — DAEYANG.ORG</title>
+<title>Blog - DAEYANG.ORG</title>
+<meta name="description" content="DAEYANG.ORG Blog">
+<link rel="canonical" href="https://www.daeyang.org/blog/">
+<!-- rebuilt: 2026-08-26T06:01:59.687Z -->
 <style>
-body{margin:0;background:#fff;color:#18181b;font-family:Inter,system-ui,sans-serif}
-header{height:56px;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;padding:0 20px;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:10}
-.wrap{max-width:720px;margin:0 auto;padding:40px 20px}
-h1{font-size:36px;margin:0 0 8px}
-.sub{font-size:13px;color:#888;margin-bottom:24px}
-.grid{display:grid;gap:12px}
-.card{border:1px solid #e5e5e5;border-radius:16px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;transition:.15s;background:#fff;text-decoration:none;color:inherit}
-.card:hover{border-color:#111;transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.06)}
-.card.featured{border-color:#111;background:#111;color:#fff}
-.card.featured p{color:#a1a1aa !important}
-.badge{font-size:10px;padding:3px 8px;border-radius:999px;background:#2563eb;color:#fff;font-weight:700;letter-spacing:.05em;margin-left:8px}
-.badge.gold{background:#f59e0b}
-.loading{padding:40px;text-align:center;color:#71717a}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:#fafafa;color:#111;line-height:1.6}
+header{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#fff;border-bottom:1px solid #e5e5e5;position:sticky;top:0;z-index:10}
+header a{text-decoration:none;color:#111;font-weight:700}
+.wrap{max-width:680px;margin:0 auto;padding:40px 20px}
+h1{font-size:32px;letter-spacing:-.02em;margin:0 0 8px}
+.sub{font-size:14px;color:#888;margin-bottom:24px}
+.posts{display:flex;flex-direction:column;gap:12px}
+.post{display:block;background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:16px 18px;text-decoration:none;color:#111;transition:all .15s}
+.post:hover{border-color:#111;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.post-title{font-size:16px;font-weight:600;margin:0 0 4px}
+.post-meta{font-size:12px;color:#888}
+.footer{margin-top:40px;padding-top:20px;border-top:1px solid #e5e5e5;font-size:12px;color:#888;text-align:center}
 </style>
 </head>
 <body>
-<header><a href="/" style="font-weight:700;font-size:13px;letter-spacing:.08em;text-decoration:none;color:#111">DAEYANG.ORG</a><a href="/write/" style="background:#111;color:#fff;padding:8px 14px;border-radius:999px;font-size:12px;text-decoration:none">✏️ 새 글</a></header>
-<main class="wrap">
+<header><a href="/">DAEYANG.ORG</a><a href="/write/">Write</a></header>
+<div class="wrap">
 <h1>Blog</h1>
-<div class="sub">dyscada가 맨 앞에 고정됩니다 (ctc-wired + scada-20years 통합)</div>
-<div id="grid" class="grid"><div class="loading">⏳ 불러오는 중...</div></div>
-</main>
-<script>
-(async()=>{
-  const owner='dyscada';
-  const repo='daeyang.org';
-  const branch='main';
-  const token=localStorage.getItem('writer92_ghToken')||'';
-  const grid=document.getElementById('grid');
-  
-  // dyscada를 맨 앞으로 고정
-  const PINNED_ORDER = ['dyscada', 'building-checklist', 'building', 'checklist'];
-  
-  try{
-    const headers={Accept:'application/vnd.github.v3+json'};
-    if(token) headers.Authorization=`token ${token}`;
-    const res=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/blog?ref=${branch}`, {headers});
-    if(!res.ok) throw new Error(res.status);
-    const items=await res.json();
-    let folders=items.filter(i=>i.type==='dir').map(i=>i.name);
-    
-    // ctc-wired와 scada-20years는 dyscada로 합쳐졌으므로 목록에서 제외 (혹시 남아있으면 숨김)
-    folders = folders.filter(name => name !== 'ctc-wired' && name !== 'scada-20years');
-    
-    folders.sort((a,b)=>{
-      const aPinned = PINNED_ORDER.indexOf(a);
-      const bPinned = PINNED_ORDER.indexOf(b);
-      const aIsPinned = aPinned !== -1;
-      const bIsPinned = bPinned !== -1;
-      if(aIsPinned && bIsPinned) return aPinned - bPinned;
-      if(aIsPinned) return -1;
-      if(bIsPinned) return 1;
-      return a.localeCompare(b);
-    });
-    
-    localStorage.setItem('blog_list_backup', JSON.stringify(folders));
-    
-    grid.innerHTML=folders.map((name, idx)=>{
-      const isFirst = name==='dyscada';
-      const emojiMap={dyscada:'⚡️',billiards:'🎱',swimming:'🏊',travel:'✈️',food:'🍜',daily:'📝',dev:'💻','building-checklist':'🏢',building:'🏢'};
-      const emoji=emojiMap[name]|| (isFirst?'⚡️':'📄');
-      const titleMap={dyscada:'DYSCADA',billiards:'3 쿠션',swimming:'수영','building-checklist':'빌딩 체크리스트'};
-      const title=titleMap[name]||name;
-      const badge = isFirst ? '<span class="badge gold">FIRST</span>' : (idx===1?'<span class="badge">PINNED</span>':'');
-      const desc = isFirst ? 'ctc-wired + scada-20years 통합' : `blog/${name}/`;
-      return `<a class="card ${isFirst?'featured':''}" href="/blog/${name}/"><div><h3 style="margin:0 0 4px;display:flex;align-items:center">${emoji} ${title} ${badge}</h3><p style="margin:0;font-size:12px;color:#888">${desc}</p></div><span>${isFirst?'📌':'→'}</span></a>`;
-    }).join('');
-  }catch(e){
-    console.error(e);
-    const backup=JSON.parse(localStorage.getItem('blog_list_backup')||'["dyscada","billiards","swimming"]');
-    grid.innerHTML=backup.map((name,idx)=>{
-      const isFirst = name==='dyscada';
-      return `<a class="card ${isFirst?'featured':''}" href="/blog/${name}/"><div><h3>📄 ${name} ${isFirst?'<span class="badge gold">FIRST</span>':''}</h3><p>blog/${name}/</p></div><span>${isFirst?'📌':'→'}</span></a>`;
-    }).join('');
-  }
-})();
-</script>
+<div class="sub">총 5개의 글 · 2026-08-26 기준</div>
+<div class="posts">
+
+    <a href="/blog/swimming/" class="post">
+      <div class="post-title">수영</div>
+      <div class="post-meta">2024-01-01 · swimming</div>
+    </a>
+
+    <a href="/blog/MUSIC/" class="post">
+      <div class="post-title">음악</div>
+      <div class="post-meta">2024-01-01 · MUSIC</div>
+    </a>
+
+    <a href="/blog/dyscada/" class="post">
+      <div class="post-title">DYSCADA</div>
+      <div class="post-meta">2024-01-01 · dyscada</div>
+    </a>
+
+    <a href="/blog/building-checklist/" class="post">
+      <div class="post-title">Building 소규모 빌딩 장기 유지보수 체크리스트</div>
+      <div class="post-meta">2024-01-01 · building-checklist</div>
+    </a>
+
+    <a href="/blog/billiards/" class="post">
+      <div class="post-title">3 쿠션</div>
+      <div class="post-meta">2024-01-01 · billiards</div>
+    </a>
+</div>
+<div class="footer">DAEYANG.ORG · 다른 컴퓨터에서 다르게 보이면 Ctrl+Shift+R</div>
+</div>
 </body>
 </html>
